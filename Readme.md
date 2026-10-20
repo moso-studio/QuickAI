@@ -7,7 +7,7 @@
 QuickAI is a Photoshop plugin that runs ComfyUI workflows without leaving Photoshop. It sends your canvas, a layer or a selection to your own ComfyUI server, Comfy Cloud, RunComfy or RunPod. You fill in the workflow's inputs in the plugin, queue jobs, and the results come back as layers in your document. An optional ComfyUI extension exports your ComfyUI workflows for use in the plugin and adds a two-way bridge between Photoshop and an open ComfyUI tab.
 
 <div align="center">
-<img width="426" height="1085" alt="screenshot" src="https://github.com/user-attachments/assets/94ee8b9a-46dc-4412-86a6-17be1f5e3f03" />
+<img width="353" height="900" alt="screenshot" src="https://github.com/user-attachments/assets/94ee8b9a-46dc-4412-86a6-17be1f5e3f03" />
 </div>
 
 ## **Installation**
