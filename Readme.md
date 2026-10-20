@@ -12,6 +12,8 @@ QuickAI is a Photoshop plugin that runs ComfyUI workflows without leaving Photos
 
 ## **Installation**
 
+[Download Latest Release](https://github.com/moso-studio/QuickAI/releases/latest)
+
 Requirements: Photoshop 27.5 or later.
 
 **Recommended: Photoshop 27.8 or earlier.**
