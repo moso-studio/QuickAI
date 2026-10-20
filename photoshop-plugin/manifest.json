@@ -1,0 +1,115 @@
+{
+  "id": "QuickAI",
+  "name": "QuickAI",
+  "version": "2.0.0",
+  "main": "index.html",
+  "manifestVersion": 5,
+  "host": {
+    "app": "PS",
+    "minVersion": "27.5.0"
+  },
+  "requiredPermissions": {
+    "clipboard": "readAndWrite",
+    "localFileSystem": "request",
+    "launchProcess": {
+      "schemes": [
+        "http",
+        "https"
+      ]
+    },
+    "network": {
+      "domains": "all"
+    }
+  },
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "mainPanel",
+      "label": "QuickAI",
+      "minimumSize": {
+        "width": 400,
+        "height": 700
+      },
+      "maximumSize": {
+        "width": 2000,
+        "height": 2000
+      },
+      "preferredDockedSize": {
+        "width": 430,
+        "height": 960
+      },
+      "preferredFloatingSize": {
+        "width": 430,
+        "height": 960
+      },
+      "icons": [
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/qc.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "dark",
+            "darkest"
+          ],
+          "species": [
+            "generic"
+          ]
+        },
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/qc.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "lightest",
+            "light"
+          ],
+          "species": [
+            "generic"
+          ]
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "width": 48,
+      "height": 48,
+      "path": "icons/quickai.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "dark",
+        "darkest"
+      ],
+      "species": [
+        "generic"
+      ]
+    },
+    {
+      "width": 48,
+      "height": 48,
+      "path": "icons/quickai.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "lightest",
+        "light"
+      ],
+      "species": [
+        "generic"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,240 @@
+{
+  "2": {
+    "inputs": {
+      "prompt": "",
+      "model": "gpt-image-2",
+      "model.size": "auto",
+      "model.custom_width": 1024,
+      "model.custom_height": 1024,
+      "model.background": "auto",
+      "model.quality": "low",
+      "n": 1,
+      "seed": 0,
+      "model.images.image_1": [
+        "3",
+        0
+      ],
+      "model.images.image_2": [
+        "5",
+        0
+      ],
+      "model.images.image_3": [
+        "6",
+        0
+      ],
+      "model.images.image_4": [
+        "7",
+        0
+      ],
+      "model.images.image_5": [
+        "8",
+        0
+      ],
+      "model.images.image_6": [
+        "9",
+        0
+      ],
+      "model.images.image_7": [
+        "10",
+        0
+      ],
+      "model.images.image_8": [
+        "11",
+        0
+      ],
+      "model.images.image_9": [
+        "12",
+        0
+      ],
+      "model.images.image_10": [
+        "13",
+        0
+      ],
+      "model.images.image_11": [
+        "14",
+        0
+      ],
+      "model.images.image_12": [
+        "16",
+        0
+      ],
+      "model.images.image_13": [
+        "17",
+        0
+      ],
+      "model.images.image_14": [
+        "18",
+        0
+      ],
+      "model.images.image_15": [
+        "15",
+        0
+      ],
+      "model.images.image_16": [
+        "19",
+        0
+      ]
+    },
+    "class_type": "OpenAIGPTImageNodeV2",
+    "_meta": {
+      "title": "@OpenAI GPT Image 2"
+    }
+  },
+  "3": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Main Image"
+    }
+  },
+  "4": {
+    "inputs": {
+      "filename_prefix": "GPT_Image",
+      "images": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "5": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 2"
+    }
+  },
+  "6": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 3"
+    }
+  },
+  "7": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 4"
+    }
+  },
+  "8": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 5"
+    }
+  },
+  "9": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 6"
+    }
+  },
+  "10": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 7"
+    }
+  },
+  "11": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 8"
+    }
+  },
+  "12": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 9"
+    }
+  },
+  "13": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 10"
+    }
+  },
+  "14": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 11"
+    }
+  },
+  "15": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 15"
+    }
+  },
+  "16": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 12"
+    }
+  },
+  "17": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 13"
+    }
+  },
+  "18": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 14"
+    }
+  },
+  "19": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 16"
+    }
+  }
+}

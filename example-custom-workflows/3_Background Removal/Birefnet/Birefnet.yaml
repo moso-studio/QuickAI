@@ -1,0 +1,5 @@
+environment: "cloud", "local", "runcomfy", "runpod"
+input: ("17", required)
+scaled_down_additional_inputs_default: true
+output: "22"
+output_mask: "24"

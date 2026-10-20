@@ -1,0 +1,34 @@
+environment: "local", "cloud", "runcomfy", "runpod"
+input: ("84", "Main Image", required), ("655", "Image 2")
+scaled_down_additional_inputs_default: true
+output: "653"
+
+node_id: "654"
+    prompt:
+        type: bigtextbox
+        data_type: string
+        label: "prompt"
+        default: ""
+    model:
+        type: dropdown
+        data_type: string
+        label: "model"
+        default: "Flux.2 [pro]"
+        options:
+            - "Flux.2 [pro]"
+            - "Flux.2 [max]"
+    model.width:
+        type: textbox
+        data_type: integer
+        label: "width"
+        default: "1024"
+    model.height:
+        type: textbox
+        data_type: integer
+        label: "height"
+        default: "1024"
+    seed:
+        type: seed
+        data_type: integer
+        label: "seed"
+        default: "0"

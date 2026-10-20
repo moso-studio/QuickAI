@@ -1,0 +1,296 @@
+{
+  "3": {
+    "inputs": {
+      "seed": [
+        "616",
+        0
+      ],
+      "steps": 5,
+      "cfg": 1.5,
+      "sampler_name": "res_multistep",
+      "scheduler": "simple",
+      "denoise": [
+        "614",
+        0
+      ],
+      "model": [
+        "11",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "148",
+        0
+      ],
+      "latent_image": [
+        "266",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "6": {
+    "inputs": {
+      "text": [
+        "599",
+        0
+      ],
+      "clip": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "11": {
+    "inputs": {
+      "shift": 3,
+      "model": [
+        "16",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "ModelSamplingAuraFlow"
+    }
+  },
+  "16": {
+    "inputs": {
+      "unet_name": "z_image_turbo_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Diffusion Model"
+    }
+  },
+  "17": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "18": {
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Load CLIP"
+    }
+  },
+  "28": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "145": {
+    "inputs": {
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "147": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "megapixels": [
+        "613",
+        0
+      ],
+      "resolution_steps": 1,
+      "image": [
+        "254",
+        0
+      ]
+    },
+    "class_type": "ImageScaleToTotalPixels",
+    "_meta": {
+      "title": "ImageScaleToTotalPixels"
+    }
+  },
+  "148": {
+    "inputs": {
+      "conditioning": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "ConditioningZeroOut"
+    }
+  },
+  "152": {
+    "inputs": {
+      "text_input": "",
+      "task": "detailed_caption",
+      "fill_mask": true,
+      "keep_model_loaded": false,
+      "max_new_tokens": 1024,
+      "num_beams": 3,
+      "do_sample": true,
+      "output_mask_select": "",
+      "seed": 793562787721653,
+      "image": [
+        "28",
+        0
+      ],
+      "florence2_model": [
+        "612",
+        0
+      ]
+    },
+    "class_type": "Florence2Run",
+    "_meta": {
+      "title": "Florence2Run"
+    }
+  },
+  "254": {
+    "inputs": {
+      "upscale_model": [
+        "255",
+        0
+      ],
+      "image": [
+        "28",
+        0
+      ]
+    },
+    "class_type": "ImageUpscaleWithModel",
+    "_meta": {
+      "title": "Upscale Image (using Model)"
+    }
+  },
+  "255": {
+    "inputs": {
+      "model_name": "RealESRGAN_x4plus.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Load Upscale Model"
+    }
+  },
+  "266": {
+    "inputs": {
+      "pixels": [
+        "147",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "599": {
+    "inputs": {
+      "string_a": [
+        "610",
+        0
+      ],
+      "string_b": [
+        "152",
+        2
+      ],
+      "delimiter": ". "
+    },
+    "class_type": "StringConcatenate",
+    "_meta": {
+      "title": "Text Concatenate"
+    }
+  },
+  "610": {
+    "inputs": {
+      "value": "Photo"
+    },
+    "class_type": "PrimitiveString",
+    "_meta": {
+      "title": "Prompt | String"
+    }
+  },
+  "612": {
+    "inputs": {
+      "model": "microsoft/Florence-2-large",
+      "precision": "fp16",
+	  "attention": "sdpa",
+      "convert_to_safetensors": false
+    },
+    "class_type": "DownloadAndLoadFlorence2Model",
+    "_meta": {
+      "title": "DownloadAndLoadFlorence2Model"
+    }
+  },
+  "613": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "Float",
+    "_meta": {
+      "title": "Upscale MPX | Float"
+    }
+  },
+  "614": {
+    "inputs": {
+      "value": 0.6
+    },
+    "class_type": "Float",
+    "_meta": {
+      "title": "Denoise | Float"
+    }
+  },
+  "616": {
+    "inputs": {
+      "value": 416441990077528
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Seed | Int"
+    }
+  },
+  "617": {
+    "inputs": {
+      "filename_prefix": "Z_Image_Turbo",
+      "images": [
+        "145",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  }
+}

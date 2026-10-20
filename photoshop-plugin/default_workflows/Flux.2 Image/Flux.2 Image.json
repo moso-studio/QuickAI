@@ -1,0 +1,238 @@
+{
+  "84": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Main Image"
+    }
+  },
+  "638": {
+    "inputs": {
+      "width": [
+        "642",
+        0
+      ],
+      "height": [
+        "642",
+        1
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "resize",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 2,
+      "device": "cpu",
+      "image": [
+        "654",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "639": {
+    "inputs": {
+      "width": [
+        "643",
+        0
+      ],
+      "height": [
+        "643",
+        1
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "crop",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 2,
+      "device": "cpu",
+      "image": [
+        "638",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "642": {
+    "inputs": {
+      "image": [
+        "641:574",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "643": {
+    "inputs": {
+      "image": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "649": {
+    "inputs": {
+      "direction": "right",
+      "match_image_size": true,
+      "spacing_width": 0,
+      "spacing_color": "white",
+      "image1": [
+        "641:574",
+        0
+      ],
+      "image2": [
+        "655",
+        0
+      ]
+    },
+    "class_type": "ImageStitch",
+    "_meta": {
+      "title": "Image Stitch"
+    }
+  },
+  "653": {
+    "inputs": {
+      "filename_prefix": "Flux.2_Image",
+      "images": [
+        "639",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "654": {
+    "inputs": {
+      "prompt": "",
+      "model": "Flux.2 [pro]",
+      "model.width": 1024,
+      "model.height": 1024,
+      "seed": 0,
+      "model.images.image_1": [
+        "649",
+        0
+      ]
+    },
+    "class_type": "Flux2ImageNode",
+    "_meta": {
+      "title": "@Flux.2 Image"
+    }
+  },
+  "655": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 2"
+    }
+  },
+  "641:582": {
+    "inputs": {
+      "image": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "641:570": {
+    "inputs": {
+      "expression": "a if a >= b else b",
+      "values.a": [
+        "641:582",
+        0
+      ],
+      "values.b": [
+        "641:582",
+        1
+      ]
+    },
+    "class_type": "ComfyMathExpression",
+    "_meta": {
+      "title": "Math Expression"
+    }
+  },
+  "641:581": {
+    "inputs": {
+      "width": [
+        "641:582",
+        0
+      ],
+      "height": [
+        "641:582",
+        1
+      ],
+      "batch_size": 1,
+      "color": 0
+    },
+    "class_type": "EmptyImage",
+    "_meta": {
+      "title": "EmptyImage"
+    }
+  },
+  "641:583": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": false,
+      "destination": [
+        "641:581",
+        0
+      ],
+      "source": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "ImageCompositeMasked"
+    }
+  },
+  "641:574": {
+    "inputs": {
+      "width": [
+        "641:570",
+        1
+      ],
+      "height": [
+        "641:570",
+        1
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "pad",
+      "pad_color": "0",
+      "crop_position": "center",
+      "divisible_by": 2,
+      "device": "cpu",
+      "image": [
+        "641:583",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  }
+}

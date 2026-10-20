@@ -1,0 +1,25 @@
+environment: "local", "cloud", "runcomfy", "runpod"
+input: ("629", "Main Image", required), ("633", "Image 2"), ("634", "Image 3")
+scaled_down_additional_inputs_default: true
+output: "632"
+
+node_id: "627:613"
+    prompt:
+        type: bigtextbox
+        data_type: string
+        label: "Prompt"
+        default: ""
+
+node_id: "627:3"
+    seed:
+        type: seed
+        data_type: integer
+        label: "Seed"
+        default: "973414316252139"
+
+node_id: "627:625"
+    value:
+        type: checkbox
+        data_type: boolean
+        label: "Turbo Mode"
+        default: true

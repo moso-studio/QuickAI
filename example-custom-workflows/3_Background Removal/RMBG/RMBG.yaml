@@ -1,0 +1,53 @@
+environment: "local", "runcomfy", "runpod"
+input: ("2", required)
+scaled_down_additional_inputs_default: true
+output: "4"
+output_mask: "3"
+
+node_id: "1"
+    model:
+        type: dropdown
+        data_type: string
+        label: "Model"
+        default: "INSPYRENET"
+        options:
+            - "RMBG-2.0"
+            - "INSPYRENET"
+            - "BEN"
+            - "BEN2"
+    
+    sensitivity:
+        type: textbox
+        data_type: float
+        label: "Sensitivity"
+        default: "1.00"
+
+    process_res:
+        type: textbox
+        data_type: integer
+        label: "Resolution"
+        default: "1024"
+
+    mask_blur:
+        type: textbox
+        data_type: integer
+        label: "Mask Blur"
+        default: "0"
+    
+    mask_offset:
+        type: textbox
+        data_type: integer
+        label: "Mask Offset"
+        default: "0"
+    
+    invert_output:
+        type: checkbox
+        data_type: boolean
+        label: "Invert"
+        default: false
+
+    refine_foreground:
+        type: checkbox
+        data_type: boolean
+        label: "Refine"
+        default: true

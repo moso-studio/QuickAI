@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="index.js"></script>
+  <style>
+    :root {
+      /* Text size scale (one size per role; keep new text on these):
+         15px view/plugin titles · 13px card & section titles · 12px main text (inputs,
+         dropdowns, buttons, logs, toasts, job titles) · 11px labels & status lines ·
+         10px small print (badges, job ids/status, X buttons). The footer credits use 11px. */
+      --qc-gap-8: 8px;
+      --qc-gap-12: 12px;
+      --qc-footer-h: 24px; /* fixed footer bar height; views reserve exactly this much */
+      --qc-float-gap: 12px; /* gap between floating boxes (toast, confirm) and the footer / panel sides */
+      /* Space kept free above the footer while a toast/confirmation is shown (its height plus a
+         gap above and below), so views end above it and nothing can sit underneath it. Set at
+         runtime by updateFloatingBoxReserve(); 0 when no box is shown. */
+      --qc-float-reserve: 0px;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: rgb(24, 24, 24);
+      color: #fff;
+      overflow: auto;
+      font-size: 120%;
+    }
+    .wrapper {
+      height: 100%;
+      overflow: auto;
+      overflow-y: auto;
+      scrollbar-gutter: stable both-edges;
+      box-sizing: border-box;
+      padding: 12px;
+      display: block;
+      background: rgb(24, 24, 24);
+      min-width: 380px;
+      min-height: 680px;
+    }
+    .plugin-title,
+    .connectionRow,
+    .actionSections,
+    .pluginVersionRow,
+    .terminalToggleRow,
+    .terminalActionRow {
+      flex: 0 0 auto;
+      flex-shrink: 0;
+    }
+    .plugin-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+      margin: 0 0 12px 0;
+      letter-spacing: 0.5px;
+    }
+    .connectionRow {
+      display: flex;
+      flex-direction: row;
+      gap: 0;
+      align-items: flex-start;
+    }
+    .fieldGroup.server,
+    .fieldGroup.port {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .fieldGroup {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .connectionModeRow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-top: 6px;
+      user-select: none;
+    }
+    .workflowImportDialog {
+      width: min(1100px, calc(100vw - 24px));
+      max-width: min(1100px, calc(100vw - 24px));
+      max-height: calc(100vh - 24px);
+      margin: 0;
+      box-sizing: border-box;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+      display: block;
+      overflow: visible;
+    }
+    .workflowImportDialog .workflowImportCard {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .workflowImportDialog .workflowImportCard .connectionModeRow {
+      display: flex;
+      align-items: center;
+      min-width: 132px;
+      white-space: nowrap;
+    }
+    .workflowImportDialog .workflowImportCard input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      display: inline-block;
+      accent-color: rgb(11, 140, 233);
+      appearance: auto;
+      -webkit-appearance: checkbox;
+    }
+    .workflowImportDialog .workflowImportCard .workflowImportInputRow,
+    .workflowImportDialog .workflowImportCard .workflowImportWidgetRow {
+      display: flex;
+      align-items: flex-start;
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 0;
+      min-width: 0;
+    }
+    .workflowImportDialog .workflowImportCard .workflowImportInputField,
+    .workflowImportDialog .workflowImportCard .workflowImportField {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
+    }
+    .workflowImportDialog .workflowImportCard .workflowImportInputField > .fieldLabel,
+    .workflowImportDialog .workflowImportCard .workflowImportField > .fieldLabel {
+      display: block;
+      width: 100%;
+      max-width: none;
+      margin: 0 0 6px 0;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      line-height: 1.2;
+    }
+    .workflowImportDialog .workflowImportCard .workflowImportInputField > .dynamicInput,
+    .workflowImportDialog .workflowImportCard .workflowImportField > .dynamicInput {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+    }
+    .workflowImportDialog .workflowImportCard .workflowImportInputField .dynamicBigInput,
+    .workflowImportDialog .workflowImportCard .workflowImportField .dynamicBigInput {
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+    }
+    .workflowImportDialog .workflowImportCard .workflowImportLabel,
+    .workflowImportDialog .workflowImportCard .workflowImportTypeLabel {
+      display: block;
+      width: 100%;
+      max-width: none;
+      flex: none;
+      margin: 0;
+      padding: 0;
+      font-size: 11px;
+      color: #cfcfcf;
+      letter-spacing: 0.2px;
+      font-weight: 600;
+      line-height: 1.2;
+      text-align: left;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+    }
+    .connectionModeRow input[type="checkbox"] {
+      width: 12px;
+      height: 12px;
+      margin: 0;
+      accent-color: rgb(11, 140, 233);
+    }
+    .connectionModeRow .connectionModeLabel {
+      font-size: 11px;
+      color: #cfcfcf !important;
+      letter-spacing: 0.2px;
+      font-weight: 600;
+      line-height: 1.2;
+      margin-left: 8px;
+      padding-left: 0;
+      opacity: 1;
+      cursor: pointer;
+    }
+    .connectionRow .fieldGroup .fieldLabel {
+      margin-bottom: 8px;
+    }
+    .fieldGroup.port {
+      margin-left: 0;
+    }
+    .connectionRow .fieldGroup + .fieldGroup {
+      margin-left: var(--qc-gap-8);
+    }
+    #environmentRow .fieldGroup.server,
+    #deploymentRow .fieldGroup.server {
+      flex: 1 1 100%;
+    }
+    #environmentRow {
+      margin-bottom: 8px;
+    }
+    #deploymentRow {
+      margin-bottom: 0;
+    }
+    #environmentRow #environmentSelect,
+    #deploymentRow #deploymentSelect {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
+    }
+    #deploymentStatusMetaLabel,
+    #deploymentStatusLabel {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9e9e9e;
+      line-height: 1;
+      min-height: 12px;
+    }
+    #deploymentStatusMetaLabel {
+      margin-top: 8px;
+      margin-bottom: 0;
+      font-weight: 600;
+      color: #d6d6d6;
+    }
+    #deploymentStatusMetaLabel.isRunning {
+      color: #7fd48b;
+    }
+    #deploymentStatusMetaLabel.isOff {
+      color: #b0b0b0;
+    }
+    #deploymentStatusMetaLabel.isUnknown {
+      color: #f0b45a;
+    }
+    #deploymentStatusMetaLabel.isError {
+      color: #ef7d7d;
+    }
+    #cloudStatusLabel {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9e9e9e;
+      line-height: 1;
+      min-height: 12px;
+    }
+    #cloudStatusLabel.isRunning { color: #7fd48b; }
+    #cloudStatusLabel.isOff     { color: #b0b0b0; }
+    #cloudStatusLabel.isUnknown { color: #f0b45a; }
+    /* Shared gray detail label used under local server and Comfy Cloud status. */
+    .serverQueueLabel {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #9e9e9e;
+      line-height: 1;
+      min-height: 12px;
+    }
+    #localServerStatusLabel {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9e9e9e;
+      line-height: 1;
+      min-height: 12px;
+    }
+    #localServerStatusLabel.isRunning {
+      color: #7fd48b;
+    }
+    #localServerStatusLabel.isOff {
+      color: #b0b0b0;
+    }
+    #localServerStatusLabel.isUnknown {
+      color: #f0b45a;
+    }
+    /* Comfy server connection security hint under the Server field, always gray
+       (HTTPS / Local / HTTP). Explicit 6px top margin (UXP doesn't
+       reliably apply the .fieldGroup gap) matches the 6px above the status line below it. */
+    .serverSecurityLabel {
+      margin-top: 6px;
+      font-size: 11px;
+      line-height: 1;
+      min-height: 11px;
+      color: #b0b0b0; /* same gray as the "Off" status, for every state */
+      white-space: nowrap;
+      user-select: none;
+    }
+    /* Orange while the address is being tested, same as the other "Checking..." states. */
+    .serverSecurityLabel.isChecking {
+      color: #f0b45a;
+    }
+    /* Settings > Update "Version:" line, under the update status. */
+    .settingsVersionLabel {
+      font-size: 12px;
+      line-height: 1.3;
+      color: #cfcfcf;
+      user-select: none;
+    }
+    /* Settings > Update checkbox: 8px under the Version line, nothing below (last in section). */
+    .fitCanvasRow.settingsUpdateNoticeRow {
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+    /* Settings > Update update status line (renderPluginUpdateStatus): grey while checking, when up to date
+       or when the check failed. When a newer release exists it also gets
+       .pluginFooterLink (hand cursor, hover underline, opens the release page) and the Run
+       button blue; the 3-class selector outranks .pluginFooterLink's grey. */
+    .settingsUpdateStatus {
+      margin-bottom: 4px; /* explicit gap to the "Version:" line below (flex gap is unreliable in UXP) */
+      font-size: 12px;
+      line-height: 1.3;
+      color: #9e9e9e;
+      user-select: none;
+    }
+    .settingsUpdateStatus.pluginFooterLink.isAvailable {
+      color: rgb(0, 120, 215);
+    }
+    #deploymentWarmupBtn {
+      margin-top: 8px !important;
+      margin-bottom: 0 !important;
+      width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+    #deploymentEndpointSettingsBtn {
+      /* Match the combined width of the footer button pair plus their spacing. */
+      width: 100% !important;
+      margin: 8px 0 0 0 !important;
+      display: block;
+      white-space: nowrap;
+    }
+    #deploymentComfySettingsBtn {
+      /* Same slot, same width, same spacing as the RunPod settings button. */
+      width: 100% !important;
+      margin: 8px 0 0 0 !important;
+      display: block;
+      white-space: nowrap;
+    }
+    #deploymentStatusLabel.isRunning {
+      color: #7fd48b;
+    }
+    #deploymentStatusLabel.isOff {
+      color: #b0b0b0;
+    }
+    #deploymentStatusLabel.isUnknown {
+      color: #f0b45a;
+    }
+    #deploymentStatusLabel.isError {
+      color: #ef7d7d;
+    }
+    .fieldLabel {
+      font-size: 11px;
+      color: #cfcfcf;
+      letter-spacing: 0.2px;
+      font-weight: 600;
+      line-height: 1;
+    }
+    #serverField, #portField {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .serverRecentList {
+      position: fixed;
+      z-index: 10000;
+      min-width: 160px;
+      max-width: 420px;
+      max-height: 120px;
+      overflow-y: auto;
+      background: #1e1e1e;
+      border: 1px solid #444;
+      border-radius: 4px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+      padding: 2px 0;
+      box-sizing: border-box;
+    }
+    .serverRecentList.isHidden {
+      display: none;
+    }
+    .serverRecentItem {
+      display: block;
+      width: calc(100% - 24px);
+      min-height: 20px;
+      border: 0;
+      border-radius: 0;
+      outline: none;
+      box-shadow: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      color: #eaeaea;
+      text-align: left;
+      margin: 0;
+      padding: 3px 8px;
+      font-size: 11px;
+      line-height: 1.1;
+      cursor: pointer;
+    }
+    .serverRecentItem:hover {
+      background: #2b2b2b;
+    }
+    .portRecentList {
+      position: fixed;
+      z-index: 10000;
+      min-width: 120px;
+      max-width: 220px;
+      max-height: 120px;
+      overflow-y: auto;
+      background: #1e1e1e;
+      border: 1px solid #444;
+      border-radius: 4px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+      padding: 2px 0;
+      box-sizing: border-box;
+    }
+    .portRecentList.isHidden {
+      display: none;
+    }
+    .portRecentItem {
+      display: block;
+      width: calc(100% - 24px);
+      min-height: 20px;
+      border: 0;
+      border-radius: 0;
+      outline: none;
+      box-shadow: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      color: #eaeaea;
+      text-align: left;
+      margin: 0;
+      padding: 3px 8px;
+      font-size: 11px;
+      line-height: 1.1;
+      cursor: pointer;
+    }
+    .portRecentItem:hover {
+      background: #2b2b2b;
+    }
+    .recentItemRow {
+      width: 100%;
+      display: flex;
+      align-items: stretch;
+    }
+    .recentItemRemoveBtn {
+      width: 24px;
+      min-width: 24px;
+      height: auto;
+      min-height: 100%;
+      align-self: stretch;
+      border: 0;
+      border-radius: 0;
+      outline: none;
+      box-shadow: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      color: #9f9f9f;
+      margin: 0;
+      padding: 0;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      text-align: center;
+    }
+    /* Recent server/port list rows are 24px tall, like every other control. These items are
+       <button>s; explicit !important heights are what reliably size buttons in this panel
+       (same approach as .qc-btn, measured 24px), so the row, item and X are all locked. */
+    .recentItemRow {
+      height: 24px;
+      min-height: 24px;
+      max-height: 24px;
+    }
+    .serverRecentItem,
+    .portRecentItem,
+    .recentItemRemoveBtn {
+      height: 24px !important;
+      min-height: 24px !important;
+      max-height: 24px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      box-sizing: border-box;
+    }
+    .recentItemRemoveBtn:hover {
+      background: #2b2b2b;
+      color: #e8e8e8;
+    }
+    .actionSections {
+      margin-top: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      align-items: stretch;
+      flex: 0 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .actionCard + .actionCard {
+      margin-top: var(--qc-gap-8);
+    }
+    .actionCard {
+      border: 1px solid #3a3a3a;
+      background: #1a1a1a;
+      border-radius: 4px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .actionCardTitle {
+      font-size: 13px;
+      color: #cfcfcf;
+      letter-spacing: 0.3px;
+      font-weight: 600;
+      line-height: 1;
+      text-align: left;
+      padding-bottom: 8px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #3a3a3a;
+    }
+    .bridgeSubtitle {
+      font-size: 11px;
+      color: #cfcfcf;
+      letter-spacing: 0.2px;
+      font-weight: 600;
+      line-height: 1;
+      margin-top: 2px;
+    }
+    /* No divider line: Get reads as a second section like Send, separated by spacing only. */
+    .bridgeSubtitleGet {
+      margin-top: 10px;
+    }
+    .actionButtons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      margin-top: 8px;
+    }
+    .actionButtons .qc-btn {
+      display: block;
+      width: calc(50% - 4px);
+      margin: 0 0 8px 0 !important;
+    }
+    .actionButtons .qc-btn:nth-child(odd) {
+      margin-right: 8px !important;
+    }
+    .sendGrid {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .sendGrid .qc-btn {
+      display: block;
+      width: calc(50% - 4px);
+      margin: 0 0 8px 0 !important;
+    }
+    .sendGrid .qc-btn:nth-child(odd) {
+      margin-right: 8px !important;
+    }
+    /* Bridge Send mode dropdown: full card width, 8px below the Send title like the old buttons
+       (margin-based, since the card's flex gap is unreliable in UXP). */
+    select.dynamicInput.bridgeSendModeSelect {
+      display: block;
+      width: 100%;
+      margin: 8px 0 0 0;
+    }
+    .sendGridFullWidth {
+      display: block;
+      width: 100%;
+      /* Only margin-top: the parent .actionCard is a flex column with its own gap:8px between
+         children, which already provides bottom spacing to the next row (.sendGrid). Matches
+         .sendGrid's own margin-top: 8px so both gaps read the same as the original
+         subtitle-to-button-row spacing. */
+      margin: 8px 0 0 0 !important;
+    }
+    .qc-btn {
+      width: 100%;
+      min-width: 0;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 !important;
+      height: 24px;
+      min-height: 24px;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 4px;
+      text-align: center;
+      background: rgb(50, 50, 50);
+      color: rgb(255, 255, 255);
+      border: 0;
+      outline: none;
+      box-shadow: none;
+    }
+    .qc-btn:hover {
+      cursor: pointer;
+      background: rgb(58, 58, 58);
+    }
+    .qc-btn:disabled,
+    .qc-btn.isDisabled {
+      cursor: default;
+      pointer-events: none;
+      opacity: 0.42;
+    }
+    .qc-btn:disabled:hover,
+    .qc-btn.isDisabled:hover {
+      background: rgb(50, 50, 50);
+    }
+    .qc-btn:focus,
+    .qc-btn:focus-visible,
+    .qc-btn:active {
+      outline: none;
+      box-shadow: none;
+    }
+    .qc-btn.isDanger {
+      background: rgb(196, 52, 52);
+    }
+    .qc-btn.isDanger:hover {
+      background: rgb(210, 64, 64);
+    }
+    #autoRunRunBtn {
+      background: rgb(0, 120, 215);
+    }
+    #autoRunRunBtn:hover {
+      background: rgb(11, 130, 224);
+    }
+    #autoRunStopBtn {
+      background: rgb(0, 120, 215);
+    }
+    #autoRunStopBtn:hover {
+      background: rgb(11, 130, 224);
+    }
+    #autoRunStopBtn:disabled,
+    #autoRunStopBtn.isDisabled,
+    #autoRunStopBtn:disabled:hover,
+    #autoRunStopBtn.isDisabled:hover {
+      background: rgb(88, 88, 88);
+    }
+    .terminalToggleRow {
+      margin: 8px 0 0 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      margin-left: 0;
+      padding-left: 0;
+      flex: 0 0 auto;
+    }
+    .terminalToggleRow .qc-btn {
+      width: auto;
+      min-width: 84px;
+      height: 24px;
+      min-height: 24px;
+      border-radius: 4px;
+      padding: 0 10px !important;
+      font-family: 'Source Code Pro', 'Menlo', 'Courier New', Courier, monospace;
+      font-size: 12px;
+      line-height: 1.2;
+      margin: 0 !important;
+    }
+    .terminalToggleRow .qc-btn + .qc-btn {
+      margin-left: 8px !important;
+    }
+    .terminalActionRow {
+      margin-top: 8px;
+      display: flex;
+      justify-content: stretch;
+      align-items: center;
+      gap: 0;
+      margin-left: 0;
+      padding-left: 0;
+      flex: 0 0 auto;
+      width: 100%;
+    }
+    .terminalActionRow .qc-btn {
+      flex: 1 1 0;
+      width: 0;
+      min-width: 0;
+      height: 24px;
+      min-height: 24px;
+      border-radius: 4px;
+      padding: 0 10px !important;
+      font-family: 'Source Code Pro', 'Menlo', 'Courier New', Courier, monospace;
+      font-size: 12px;
+      line-height: 1.2;
+      margin: 0 !important;
+    }
+    .terminalActionRow .qc-btn + .qc-btn {
+      margin-left: 8px !important;
+    }
+    /* Footer credit/version bar, pinned to the bottom of the panel so it stays visible while the
+       view above it scrolls. Only the active view's footer shows, because inactive views are
+       display:none. Its own background keeps scrolled content from showing through. */
+    .pluginVersionRow {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9000;
+      height: var(--qc-footer-h);
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      background: rgb(24, 24, 24);
+      border-top: 1px solid #2e2e2e;
+      display: flex;
+      flex-direction: column; /* update notice (when shown) stacks above the credit label */
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      color: #8f8f8f;
+      font-size: 11px;
+      line-height: 1;
+      letter-spacing: 0.2px;
+      user-select: none;
+    }
+    .pluginVersionLabel {
+      white-space: nowrap;
+    }
+    /* Clickable footer credits (rendered by renderPluginFooterLabel); brighten on hover. */
+    .pluginFooterLink {
+      display: inline-block;
+      color: #8f8f8f; /* explicit footer grey; UXP doesn't reliably honor color: inherit */
+      /* !important beats the later ".wrapper, .wrapper * { cursor: default; }" reset, same
+         as .qc-btn does; without it the main panel's footer links showed the arrow cursor. */
+      cursor: pointer !important;
+    }
+    .pluginFooterLink:hover {
+      color: rgb(0, 120, 215); /* same blue as the Run button (#autoRunRunBtn) */
+      text-decoration: underline;
+    }
+    /* "Update available" line above the footer credits (renderPluginUpdateNotices). Hidden until
+       a newer GitHub release is found; uses the Run button blue so it stands out from the grey
+       credits, and keeps the shared footer-link hover underline. 4px gap to the label below. */
+    .pluginFooterLink.pluginUpdateNotice {
+      display: none;
+      margin: 0 0 4px 0;
+      color: rgb(0, 120, 215);
+      white-space: nowrap;
+    }
+    .pluginFooterLink.pluginUpdateNotice.isVisible {
+      display: inline-block;
+    }
+    /* While the notice shows, the footer bar holds two lines: grow it, and (because every view's
+       height is calc(100% - var(--qc-footer-h))) shrink the views by the same amount. */
+    body.hasPluginUpdate {
+      --qc-footer-h: 40px;
+    }
+    /* Each view's scroll area stops exactly where the fixed footer begins, instead of running
+       underneath it. UXP paints nested scroll boxes (e.g. the Inputs list) above fixed elements
+       regardless of z-index, so overlap can't be solved with stacking; the view itself must clip
+       its content above the footer. min-height is dropped here so the view never grows past the
+       panel and pushes content back under the footer (views scroll internally instead). */
+    .wrapper,
+    #settingsView,
+    #autoRunJobsView,
+    #autoRunJobLogView,
+    #runPodEndpointSettingsView,
+    #runComfyDeploymentSettingsView,
+    #importWorkflowsView {
+      height: calc(100% - var(--qc-footer-h) - var(--qc-float-reserve)) !important;
+      min-height: 0 !important;
+    }
+    /* Main view: 8px between the last control (Terminal, or Clear/Save when the log is open) and
+       the footer, matching the 8px spacing between the stacked buttons above it. */
+    .wrapper {
+      padding-bottom: 8px !important;
+    }
+    /* Pressed (terminal open) state uses the same neutral highlight as the current Jobs page
+       number: lighter fill + light inset ring, which doesn't change the button's size. */
+    #terminalToggle[aria-pressed="true"] {
+      background: rgb(85, 85, 85);
+      box-shadow: inset 0 0 0 1px rgb(210, 210, 210);
+    }
+    #terminalToggle[aria-pressed="true"]:hover {
+      background: rgb(95, 95, 95);
+    }
+    .connectionButtonsRow {
+      margin-top: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: row;
+      gap: 0;
+      align-items: flex-start;
+      position: relative;
+      z-index: 2;
+    }
+    #connectionRow.isHidden + .connectionButtonsRow {
+      margin-top: 0;
+    }
+    .fitCanvasRow {
+      margin-top: 0;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      user-select: none;
+    }
+    .connectionSettingsDivider {
+      width: 100%;
+      height: 1px;
+      margin: 0 0 8px 0;
+      padding: 0;
+      background: transparent;
+      border-top: 1px solid #3a3a3a;
+      box-sizing: border-box;
+      flex: 0 0 auto;
+    }
+    .fitCanvasRow input[type="checkbox"] {
+      width: 12px;
+      height: 12px;
+      margin: 0;
+      accent-color: rgb(11, 140, 233);
+    }
+    .fitCanvasRowLabel {
+      font-size: 11px;
+      color: #cfcfcf !important;
+      letter-spacing: 0.2px;
+      font-weight: 600;
+      line-height: 1.2;
+      margin-left: 8px;
+      opacity: 1;
+      cursor: pointer;
+    }
+    .connectionButtonsRow .fieldGroup {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .connectionButtonsRow .fieldGroup + .fieldGroup {
+      margin-left: var(--qc-gap-8);
+    }
+    .connectionButtonColumn {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .connectionButtonsRow .qc-btn {
+      width: 100%;
+      margin: 0 !important;
+    }
+    .connectionButtonSpacer {
+      height: 24px;
+      min-height: 24px;
+    }
+    #settingsToggle {
+      margin: 0 !important;
+    }
+    #openComfyUiBtn {
+      margin: 0 !important;
+    }
+    #logContainer {
+      margin-top: var(--qc-gap-8);
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 0;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    #logContainer.isHidden {
+      display: none;
+    }
+    #logWebview {
+      margin-top: 0;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #444;
+      font-family: 'Source Code Pro', 'Menlo', 'Courier New', Courier, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      flex: 0 0 auto;
+      min-height: 200px;
+      max-height: 200px;
+      height: 200px;
+      display: block;
+      box-sizing: border-box;
+      overflow-y: auto;
+      overflow-x: hidden;
+      contain: none;
+      background: #111;
+      color: #eaeaea;
+      cursor: text;
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      resize: none;
+      margin: 0;
+    }
+    sp-textfield::part(textfield),
+    sp-textfield::part(input) {
+      border-radius: 4px;
+      cursor: text;
+    }
+    .wrapper, .wrapper * {
+      cursor: default;
+    }
+    .qc-btn,
+    .qc-btn:hover {
+      cursor: pointer !important;
+    }
+    sp-textfield,
+    sp-textfield::part(textfield),
+    sp-textfield::part(input) {
+      cursor: text !important;
+    }
+    .dynamicForm {
+      margin-top: 6px;
+      width: 100%;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .dynamicField {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      width: 100%;
+      margin: 0;
+    }
+    .dynamicField.isHidden {
+      display: none;
+    }
+    .dynamicField.workflowSelectorField {
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+    .dynamicField.workflowSelectorField + .dynamicField {
+      margin-top: -4px;
+    }
+    /* Horizontal label-to-control spacing is an explicit 4px right margin: the row's
+       `gap: 4px` doesn't apply in UXP (measured 120px label + 233px control = full row). */
+    .dynamicField .fieldLabel {
+      flex: 0 0 120px;
+      max-width: 120px;
+      margin: 0 4px 0 0;
+      padding: 0;
+      font-size: 11px;
+      color: #cfcfcf;
+      letter-spacing: 0.2px;
+      font-weight: 600;
+      line-height: 1;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dynamicField.workflowSelectorField .fieldLabel {
+      flex: 0 0 auto;
+      max-width: none;
+      width: 100%;
+      margin-right: 0; /* full-width label above the picker; no side spacing needed */
+      text-align: left;
+    }
+    .dynamicField.dynamicBigTextField {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    .dynamicField.workflowSelectorField select.dynamicInput {
+      width: 100%;
+      max-width: 100%;
+    }
+    .dynamicField.workflowSelectorField .workflowSelectorControlRow {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: var(--qc-gap-8);
+      padding-left: 0;
+      box-sizing: border-box;
+    }
+    .dynamicField.workflowSelectorField .workflowSelectorControlRow select.dynamicInput {
+      flex: 1 1 auto;
+      width: 100%;
+      max-width: none;
+      margin-left: 0;
+    }
+    #autoRunWorkflowRefreshBtn {
+      width: 24px;
+      min-width: 24px;
+      height: 24px;
+      min-height: 24px;
+      flex: 0 0 24px;
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1;
+    }
+    .dynamicField.workflowSelectorField .workflowSelectorDefaultsRow {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-top: 4px;
+      /* 20px = the old 4px + the 16px the removed inline confirmation label used to occupy
+         (now shown as a panel toast), so the rows below don't shift. */
+      margin-bottom: 20px;
+      padding-left: 0;
+      box-sizing: border-box;
+    }
+    .dynamicField.workflowSelectorField .workflowSelectorDefaultsColumn {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .dynamicField.workflowSelectorField .workflowSelectorDefaultsColumn + .workflowSelectorDefaultsColumn {
+      margin-left: 8px;
+    }
+    #autoRunWorkflowDefaultsBtn {
+      width: 100%;
+      min-width: 0;
+      height: 24px;
+      min-height: 24px;
+      margin: 0 !important;
+      padding: 0 10px !important;
+      line-height: 1;
+    }
+    #autoRunWorkflowClipboardBtn {
+      width: 100%;
+      min-width: 0;
+      height: 24px;
+      min-height: 24px;
+      margin: 0 !important;
+      padding: 0 10px !important;
+      line-height: 1;
+    }
+    .dynamicField.autoRunButtonField {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .autoRunButtonRow {
+      width: 100%;
+      margin: 0 0 4px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+    }
+    .autoRunButtonColumn {
+      flex: 0 0 auto;
+      width: 100%;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .autoRunButtonColumn + .autoRunButtonColumn {
+      margin-top: 8px;
+      margin-left: 0;
+    }
+    .dynamicField.autoRunButtonField .qc-btn {
+      width: 100%;
+      max-width: 100%;
+      margin: 0 !important;
+    }
+    .dynamicField.dynamicCheckboxField {
+      align-items: center;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    .dynamicField.dynamicReferenceListField {
+      align-items: flex-start;
+      margin-top: 8px;
+    }
+    .dynamicField.dynamicSeedField {
+      align-items: flex-start;
+      justify-content: flex-start;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    /* Label offset = control's 6px top margin + 4px so it lines up with the seed text box. */
+    .dynamicField.dynamicSeedField .fieldLabel {
+      margin-top: 10px;
+    }
+    .dynamicField.dynamicSeedField > .dynamicSeedControl {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
+    }
+    .dynamicField.dynamicReferenceListField .fieldLabel {
+      margin-top: 42px;
+    }
+    .dynamicCheckboxInputRow {
+      margin: 6px 0;
+      width: 100%;
+    }
+    .dynamicSeedControl > .dynamicInput {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    /* 6px above/below, same as every other Auto Run row; rows rely on margins since the
+       form's flex gap doesn't apply in UXP. */
+    .dynamicReferenceListControl.dynamicSeedControl {
+      margin: 6px 0;
+    }
+    /* Auto Run dropdown rows: explicit 6px (UXP otherwise rendered 8px above/below). */
+    .dynamicField > select.dynamicInput {
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+    .dynamicReferenceListControl {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      align-items: flex-start;
+      margin: 0;
+      padding: 0;
+    }
+    .dynamicReferenceListInput {
+      width: 100%;
+      min-height: 120px;
+      height: 120px;
+      box-sizing: border-box;
+      border: 1px solid #5a5a5a;
+      border-radius: 4px;
+      background-color: #2b2b2b;
+      color: #f5f5f5;
+      padding: 0;
+      font-size: 10px;
+      line-height: 1.2;
+      outline: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      align-items: stretch;
+    }
+    .dynamicReferenceListInput:focus {
+      border-color: #7a7a7a;
+      box-shadow: 0 0 0 1px rgba(122, 122, 122, 0.2);
+    }
+    .dynamicReferenceListItem {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      background: transparent;
+      color: #e8e8e8;
+      text-align: left;
+      font-size: 10px;
+      line-height: 1.2;
+      padding: 2px 6px 2px 0;
+      cursor: pointer;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin: 0;
+      margin-left: 0;
+      padding-left: 0;
+      text-indent: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dynamicReferenceListMainRow {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      background: transparent;
+      color: #e8e8e8;
+      text-align: left;
+      font-size: 10px;
+      line-height: 1.2;
+      /* Matches .dynamicReferenceListItem's padding (left:0, offset comes from the thumb/spacer's
+         own margin-left instead) so this row's label lines up with every other row's label. */
+      padding: 2px 6px 2px 0;
+      display: flex;
+      align-items: center;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dynamicReferenceListThumbWrap {
+      position: relative;
+      width: 28px;
+      min-width: 28px;
+      height: 28px;
+      min-height: 28px;
+      margin-left: 4px;
+      margin-right: 6px;
+      border: 1px solid #4a4a4a;
+      border-radius: 2px;
+      background: #1f1f1f;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 28px;
+    }
+    .dynamicReferenceListThumbSpacer {
+      width: 28px;
+      min-width: 28px;
+      height: 28px;
+      min-height: 28px;
+      margin-left: 4px;
+      margin-right: 6px;
+      flex: 0 0 28px;
+    }
+    .dynamicReferenceListThumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .dynamicReferenceListThumb.isReady {
+      display: block;
+    }
+    .dynamicReferenceListThumbPlaceholder {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background:
+        linear-gradient(45deg, #262626 25%, transparent 25%),
+        linear-gradient(-45deg, #262626 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #262626 75%),
+        linear-gradient(-45deg, transparent 75%, #262626 75%);
+      background-size: 8px 8px;
+      background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+    }
+    .dynamicReferenceListThumbPlaceholder.isHidden {
+      display: none;
+    }
+    .dynamicReferenceListLabel {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    /* Houses the send checkbox in the same 28px-wide slot renderRowAt's thumbWrap occupies on
+       every other row, so the checkbox sits on the left and the label after it still lines up. */
+    .dynamicReferenceListMainCheckboxWrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dynamicReferenceListDisableCheckbox {
+      width: 12px;
+      height: 12px;
+      margin: 0;
+      accent-color: rgb(11, 140, 233);
+      cursor: pointer;
+    }
+    .dynamicReferenceListItem:hover {
+      background: #3a3a3a;
+    }
+    .dynamicReferenceListItem.isEmpty {
+      color: #8a8a8a;
+    }
+    .dynamicReferenceListItem.isRequired.isEmpty {
+      color: #e0a030;
+    }
+    .dynamicReferenceListItem.isSelected {
+      background: #4a4a4a;
+      color: #ffffff;
+      border-color: #5a5a5a;
+    }
+    .dynamicReferenceListItem.isSelected.isEmpty {
+      color: #8a8a8a;
+    }
+    .dynamicReferenceListItem.isSelected.isRequired.isEmpty {
+      color: #e0a030;
+    }
+    .dynamicReferenceListButtonsRow {
+      width: 100%;
+      display: flex;
+      gap: 0;
+      justify-content: flex-start;
+      align-items: center;
+      margin: 8px 0 0 0;
+      padding: 0;
+      padding-left: 0;
+      margin-left: 0;
+      align-self: stretch;
+    }
+    .dynamicReferenceListButtonsRow .dynamicReferenceListBtn:first-child {
+      margin-left: 0 !important;
+    }
+    .dynamicReferenceListButtonsRow .dynamicReferenceListBtn + .dynamicReferenceListBtn {
+      margin-left: 8px !important;
+    }
+    .dynamicReferenceListBtn {
+      width: 24px;
+      min-width: 24px;
+      height: 24px;
+      min-height: 24px;
+      flex: 0 0 24px;
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1;
+    }
+    .dynamicSectionTitle {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 2px;
+      margin-bottom: 6px;
+    }
+    .dynamicSectionTitleLabel {
+      width: 100%;
+      font-size: 11px;
+      color: #cfcfcf;
+      letter-spacing: 0.2px;
+      font-weight: 600;
+      line-height: 1;
+      text-align: left;
+      padding: 0;
+      margin: 0;
+    }
+    .dynamicSectionTitleDivider {
+      width: 100%;
+      height: 1px;
+      background: #3a3a3a;
+      margin: 8px 0 0 0;
+      padding: 0;
+    }
+    .dynamicInput {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
+      min-height: 32px;
+      box-sizing: border-box;
+      border: 1px solid #5a5a5a;
+      border-radius: 4px;
+      background-color: #2b2b2b;
+      color: #f5f5f5;
+      padding: 6px 10px;
+      font-size: 12px;
+      line-height: 1.2;
+      box-shadow: none;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: none;
+    }
+    .dynamicField > .dynamicInput {
+      margin-left: 0;
+      margin-right: 0;
+      flex: 1 1 auto;
+    }
+    .dynamicField > .dynamicSeedControl {
+      margin-left: 0;
+      margin-right: 0;
+      min-width: 0;
+    }
+    /* Single-line text boxes target ~24px to match buttons. Do NOT set an explicit `height`
+       or zero the vertical padding here: either makes UXP's native text widget paint over
+       the bottom border. Instead lower min-height and use a small vertical padding so the
+       box sizes itself (12px * 1.2 line + 2 * 4px padding + 2px border ≈ 24px). */
+    input.dynamicInput {
+      border-radius: 4px;
+      min-height: 24px;
+      padding: 4px 10px;
+    }
+    /* Focused native text boxes use the accent blue, matching the built-in Spectrum fields
+       (Server/Port, big prompt boxes) which draw their own blue focus ring. */
+    .dynamicInput:focus {
+      border-color: rgb(0, 120, 215);
+      outline: none;
+      box-shadow: 0 0 0 1px rgba(0, 120, 215, 0.35);
+    }
+    textarea.dynamicInput.dynamicBigInput {
+      min-height: 120px;
+      height: 120px;
+      line-height: 1.2;
+      padding-top: 6px;
+      padding-bottom: 6px;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    /* Keep Spectrum textarea visually identical to the prior single-border native textarea. */
+    sp-textarea.dynamicInput.dynamicBigInput {
+      display: block;
+      align-self: stretch;
+      min-height: 120px;
+      height: 120px;
+      margin: 6px 0; /* same vertical spacing as the other Auto Run rows */
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      padding: 0;
+      box-shadow: none;
+      overflow: hidden;
+    }
+    sp-textarea.dynamicInput.dynamicBigInput::part(textfield),
+    sp-textarea.dynamicInput.dynamicBigInput::part(input),
+    sp-textarea.dynamicInput.dynamicBigInput::part(textarea) {
+      min-height: 120px;
+      height: 120px;
+      margin: 0;
+      box-sizing: border-box;
+      border: 1px solid #5a5a5a;
+      border-radius: 4px;
+      background-color: #2b2b2b;
+      color: #f5f5f5;
+      padding: 6px 10px;
+      font-size: 12px;
+      line-height: 1.2;
+      box-shadow: none;
+    }
+    sp-textarea.dynamicInput.dynamicBigInput:focus-within::part(textfield),
+    sp-textarea.dynamicInput.dynamicBigInput:focus-within::part(input),
+    sp-textarea.dynamicInput.dynamicBigInput:focus-within::part(textarea) {
+      border-color: #7a7a7a;
+      box-shadow: 0 0 0 1px rgba(122, 122, 122, 0.2);
+    }
+    .autoRunProgress {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      margin-top: 2px;
+    }
+    .autoRunProgress.isHidden {
+      display: none;
+    }
+    .autoRunProgressLabel {
+      font-size: 10px;
+      color: #bdbdbd;
+      line-height: 1;
+      text-align: left;
+    }
+    input.dynamicInput[type="number"] {
+      -moz-appearance: textfield;
+    }
+    input.dynamicInput[type="number"]::-webkit-outer-spin-button,
+    input.dynamicInput[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    select.dynamicInput {
+      cursor: pointer;
+      height: 24px;
+      min-height: 24px;
+      padding: 0 5px;
+      background-color: #535353;
+      background-image: none;
+      color: #E0E0E0;
+      border: 1px solid #222;
+      border-radius: 0;
+      font-size: 12px;
+      -webkit-appearance: none;
+      appearance: none;
+      box-shadow: none;
+      transition: background-color 120ms ease;
+    }
+    select.dynamicInput:hover {
+      background-color: #646464;
+    }
+    select.dynamicInput:focus {
+      border-color: #1473e6;
+      box-shadow: none;
+    }
+    select.dynamicInput option {
+      background-color: #535353;
+      color: #E0E0E0;
+    }
+    .dynamicMeta {
+      font-size: 11px;
+      color: #9e9e9e;
+      line-height: 1;
+    }
+    .dynamicError {
+      font-size: 12px;
+      color: #ff8f8f;
+    }
+    #settingsView,
+    #autoRunJobsView,
+    #autoRunJobLogView,
+    #runPodEndpointSettingsView,
+    #runComfyDeploymentSettingsView {
+      display: none;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      padding: 12px;
+      background: rgb(24, 24, 24);
+    }
+    #settingsView .settingsSection,
+    #autoRunJobsView .settingsSection,
+    #autoRunJobLogView .settingsSection,
+    #runPodEndpointSettingsView .settingsSection,
+    #runComfyDeploymentSettingsView .settingsSection {
+      gap: 0;
+      border: none;
+      background: transparent;
+      border-radius: 0;
+      padding: 0;
+    }
+    #settingsView .settingsField,
+    #runPodEndpointSettingsView .settingsField,
+    #runComfyDeploymentSettingsView .settingsField {
+      gap: 0;
+      margin-bottom: 8px;
+    }
+    #settingsView .settingsField:last-child,
+    #runPodEndpointSettingsView .settingsField:last-child,
+    #runComfyDeploymentSettingsView .settingsField:last-child {
+      margin-bottom: 0;
+    }
+    #settingsView .settingsField .fieldLabel,
+    #runPodEndpointSettingsView .settingsField .fieldLabel,
+    #runComfyDeploymentSettingsView .settingsField .fieldLabel {
+      margin-bottom: 4px;
+    }
+    #settingsView .settingsField .dynamicInput,
+    #runPodEndpointSettingsView .settingsField .dynamicInput,
+    #runComfyDeploymentSettingsView .settingsField .dynamicInput {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    #settingsView .settingsActions,
+    #autoRunJobsView .settingsActions,
+    #autoRunJobLogView .settingsActions,
+    #runPodEndpointSettingsView .settingsActions,
+    #runComfyDeploymentSettingsView .settingsActions {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: stretch;
+      gap: 0;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      padding-top: 0;
+    }
+    #settingsView .settingsActions .qc-btn,
+    #autoRunJobsView .settingsActions .qc-btn,
+    #autoRunJobLogView .settingsActions .qc-btn,
+    #runPodEndpointSettingsView .settingsActions .qc-btn,
+    #runComfyDeploymentSettingsView .settingsActions .qc-btn {
+      flex: 1 1 0;
+      width: 100% !important;
+      min-width: 0;
+      height: 24px !important;
+      min-height: 24px !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    #settingsView .settingsActions .qc-btn + .qc-btn,
+    #autoRunJobsView .settingsActions .qc-btn + .qc-btn,
+    #autoRunJobLogView .settingsActions .qc-btn + .qc-btn,
+    #runPodEndpointSettingsView .settingsActions .qc-btn + .qc-btn,
+    #runComfyDeploymentSettingsView .settingsActions .qc-btn + .qc-btn {
+      margin-left: 8px !important;
+    }
+    #settingsView .settingsViewTitle,
+    #autoRunJobsView .settingsViewTitle,
+    #autoRunJobLogView .settingsViewTitle,
+    #runPodEndpointSettingsView .settingsViewTitle,
+    #runComfyDeploymentSettingsView .settingsViewTitle {
+      font-size: 15px;
+      font-weight: 600;
+      color: #cfcfcf;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    #settingsDialog {
+      width: 100%;
+      max-width: none;
+      min-height: 360px;
+      max-height: calc(100vh - 24px);
+      box-sizing: border-box;
+      padding: 0;
+      border: 1px solid #3a3a3a;
+      border-radius: 0 !important;
+      background: #1a1a1a;
+      color: #f5f5f5;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+    #settingsDialog::backdrop {
+      background: rgba(0, 0, 0, 0.45);
+    }
+    .settingsDialog {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: var(--qc-gap-12);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow: hidden;
+    }
+    .settingsBody {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .settingsBody .settingsSection + .settingsSection {
+      margin-top: var(--qc-gap-8);
+    }
+    .settingsSection {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid #3a3a3a;
+      background: #1a1a1a;
+      border-radius: 4px;
+      padding: var(--qc-gap-12);
+      box-sizing: border-box;
+      width: 100%;
+      max-width: none;
+    }
+    .settingsSection .settingsField,
+    .settingsSection .dynamicInput {
+      margin-left: 0;
+      margin-right: 0;
+      box-sizing: border-box;
+    }
+    .settingsSectionTitle {
+      font-size: 13px;
+      color: #cfcfcf;
+      letter-spacing: 0.3px;
+      font-weight: 600;
+      line-height: 1;
+      text-align: left;
+      padding-bottom: 8px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #3a3a3a;
+    }
+    .settingsField {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+      width: 100%;
+    }
+    .settingsField .fieldLabel {
+      margin: 0;
+      font-size: 11px;
+      color: #cfcfcf;
+      letter-spacing: 0.2px;
+      font-weight: 600;
+      line-height: 1;
+      text-align: left;
+      white-space: normal;
+    }
+    .settingsField .dynamicInput {
+      width: 100%;
+      min-width: 0;
+      display: block;
+      flex: 0 0 auto;
+      align-self: stretch;
+    }
+    .settingsField input.dynamicInput[type="password"],
+    .settingsField input.dynamicInput[type="text"],
+    .settingsField .settingsTokenField {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      display: block;
+      flex: 0 0 auto;
+      align-self: stretch;
+      box-sizing: border-box;
+    }
+    .settingsField .settingsTokenField {
+      box-sizing: border-box;
+      max-width: 100%;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+    .settingsField .settingsTokenField::part(textfield),
+    .settingsField .settingsTokenField::part(input) {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+    .settingsPathRow {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+      width: 100%;
+    }
+    .settingsPathLabel {
+      margin: 0;
+      font-size: 11px;
+      color: #cfcfcf;
+      letter-spacing: 0.2px;
+      font-weight: 600;
+      line-height: 1;
+      text-align: left;
+      white-space: normal;
+    }
+    .settingsPathInputRow {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .settingsPathInputRow .dynamicInput {
+      flex: 1 1 auto;
+      min-width: 0;
+      min-height: 24px;
+      box-sizing: border-box;
+    }
+    /* Explicit vertical spacing for label + text-box rows (the flex `gap` doesn't apply in
+       UXP): same values as the other settings fields — 4px under the label, 8px between rows. */
+    .settingsPathRow .settingsPathLabel {
+      margin-bottom: 4px;
+    }
+    .settingsPathRow {
+      margin-bottom: 8px;
+    }
+    .settingsPathRow:last-child {
+      margin-bottom: 0;
+    }
+    /* Hosts a text box inside a .settingsPathInputRow. Measured in the panel: an input that is a
+       direct child of a flex row renders 27px tall, while the same input inside a flex column
+       with align-items:flex-start renders 24px (same fix as the Auto Run text boxes). */
+    .settingsPathInputRow .settingsTextInputHost {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin: 0;
+      padding: 0;
+    }
+    .settingsTextInputHost > .dynamicInput {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    .settingsPathPickerBtn {
+      width: 24px;
+      min-width: 24px;
+      height: 24px;
+      min-height: 24px;
+      box-sizing: border-box;
+      /* Colors, border and text come from .qc-btn so these square S / X / … buttons
+         match every other panel button; only size and placement are set here. */
+      padding: 0 !important;
+      line-height: 1;
+      flex: 0 0 auto;
+      align-self: auto;
+      margin: 0 0 0 8px !important;
+    }
+    .settingsFieldsGrid {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 0;
+      width: 100%;
+    }
+    .settingsFieldsGrid .settingsField + .settingsField {
+      margin-left: var(--qc-gap-8);
+    }
+    .settingsFieldsGrid .settingsField {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .settingsActions {
+      display: flex;
+      gap: 0;
+      justify-content: center;
+      flex: 0 0 auto;
+      margin-top: auto;
+      padding-top: 10px;
+    }
+    .settingsActions .qc-btn {
+      width: auto;
+      min-width: 84px;
+      height: auto;
+      min-height: 30px;
+      margin: 0 !important;
+      padding: 0 12px !important;
+    }
+    .settingsActions .qc-btn + .qc-btn {
+      margin-left: 8px !important;
+    }
+    #runComfyDeploymentSettingsView .runComfyMaxInstancesLabel {
+      font-size: 10px;
+      white-space: nowrap;
+      letter-spacing: 0;
+    }
+    /* Jobs view places its action row above the list; tighten bottom spacing to sit close to it. */
+    #autoRunJobsView .settingsActions.autoRunJobsTopActions {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    /* Numbered page buttons below the Jobs list: regular qc-btn look, but square.
+       Spacing uses margins rather than `gap` (gap is unreliable in UXP panels). */
+    .autoRunJobsPager {
+      display: none;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .autoRunJobsPager .qc-btn.autoRunJobsPageBtn {
+      width: 24px !important;
+      min-width: 24px !important;
+      height: 24px !important;
+      min-height: 24px !important;
+      padding: 0 !important;
+      margin: 0 3px 4px 3px !important;
+    }
+    /* Current page: neutral highlight (lighter fill + light inset ring) instead of the accent
+       blue. Inset box-shadow draws the ring without changing the 24x24 box size. */
+    .autoRunJobsPager .qc-btn.autoRunJobsPageBtn.isActive {
+      background: rgb(85, 85, 85);
+      box-shadow: inset 0 0 0 1px rgb(210, 210, 210);
+    }
+    .autoRunJobsPager .qc-btn.autoRunJobsPageBtn.isActive:hover {
+      background: rgb(95, 95, 95);
+    }
+    .autoRunJobsList {
+      /* No `gap` — this UXP panel's webview has rendered flex `gap` inconsistently even at 0,
+         per this project's convention of using explicit margins/borders for spacing instead.
+         Row separation here comes from .autoRunJobItem's border-top, not a gap. */
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .autoRunJobsEmpty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 16px 12px;
+      font-size: 11px;
+      color: #9f9f9f;
+      line-height: 1.4;
+      text-align: center;
+    }
+    .autoRunJobItem {
+      /* No `gap` — see .autoRunJobsList above. Spacing between the preview/meta/actions columns
+         comes from previewWrap's own margin-right and the actions column's explicit margins. */
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 10px 0;
+      border-top: 1px solid #333333;
+    }
+    .autoRunJobItem:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .autoRunJobPreview {
+      position: relative;
+      width: 56px;
+      min-width: 56px;
+      height: 56px;
+      margin-right: 10px;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      background: #202020;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+    .autoRunJobPreviewImage {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      background: #202020;
+    }
+    .autoRunJobPreviewImage.isVisible {
+      display: block;
+    }
+    .autoRunJobPreviewFallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      text-align: center;
+      font-size: 10px;
+      line-height: 1.2;
+      color: #8f8f8f;
+      background: #202020;
+    }
+    .autoRunJobPreviewFallback.isVisible {
+      display: flex;
+    }
+    .autoRunJobPreviewBadge {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      background: rgba(0, 0, 0, 0.72);
+      color: #f5f5f5;
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .autoRunJobMeta {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding-right: 8px;
+    }
+    .autoRunJobTitle {
+      font-size: 12px;
+      color: #f2f2f2;
+      font-weight: 600;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .autoRunJobId {
+      margin-top: 2px;
+      font-size: 10px;
+      color: #b0b0b0;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .autoRunJobSubtitle {
+      margin-top: 2px;
+      font-size: 10px;
+      color: #b0b0b0;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* Second line below the env/machine subtitle, showing just the job's running/queued/
+       completed/failed state — kept separate so the status doesn't get squeezed off the end of
+       a long server/deployment name. */
+    .autoRunJobStatus {
+      margin-top: 2px;
+      font-size: 10px;
+      color: #b0b0b0;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* Stacked column, not a row: when a row has two actions (Remove + Import/View Log), Remove
+       sits on top with the second action directly below it, both the same size/alignment as the
+       single Stop button uses when only one action is shown. */
+    .autoRunJobActions {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+    .autoRunJobAction {
+      /* Fixed (not auto) width: .autoRunJobActions stretches each button to match its own row's
+         widest label, so with width:auto, Remove ended up a different size on a completed row
+         ("Import") than on a failed row ("View Log"). A fixed width keeps every button — Stop,
+         Import, View Log, Remove — identical across every row regardless of state. */
+      width: 84px;
+      min-width: 84px;
+      padding: 0 6px !important;
+      flex: 0 0 auto;
+    }
+    .autoRunJobAction.isDanger {
+      background: rgb(196, 52, 52);
+    }
+    .autoRunJobAction.isDanger:hover {
+      background: rgb(210, 64, 64);
+    }
+    .autoRunJobLogSubtitleText {
+      width: 100%;
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      color: #9f9f9f;
+      line-height: 1.3;
+    }
+    .autoRunJobLogText {
+      width: 100%;
+      max-height: 100%;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 10px;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      background: #141414;
+      color: #e0e0e0;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-y: auto;
+    }
+  #importWorkflowsView {
+    display: none;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable both-edges;
+    box-sizing: border-box;
+    /* 8px at the bottom: Cancel/Save sit 8px above the footer, like the main panel's buttons. */
+    padding: 12px 12px 8px 12px;
+    background: rgb(24, 24, 24);
+    min-width: 380px;
+    min-height: 680px;
+  }
+  #importWorkflowsView .importWorkflowTopFieldRow {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  #importWorkflowsView .importWorkflowTopFieldRow:last-of-type {
+    margin-bottom: 0;
+  }
+  #importWorkflowsView .importWorkflowTopFieldGroup {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+  }
+  #importWorkflowsView .importWorkflowTopFieldGroup > .fieldLabel {
+    margin-bottom: 8px;
+  }
+  #importWorkflowsView .importWorkflowTopFieldGroup > .dynamicInput,
+  #importWorkflowsView .importWorkflowTopFieldGroup > sp-textfield {
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  #importWorkflowsView .importWorkflowEnvironmentOptions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+  }
+  #importWorkflowsView .importWorkflowEnvironmentOptions .connectionModeRow {
+    margin-top: 0;
+    margin-right: 14px;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+      /* Single source of truth for square icon/text buttons (seed +/-/random, reference-list
+       add/remove, workflow Refresh, Settings S / X / …, Jobs page numbers). Locks all size
+       bounds and flex sizing so no parent flex row or .qc-btn width:100% can stretch them
+       into rectangles. */
+    .qc-btn.dynamicReferenceListBtn,
+    #autoRunWorkflowRefreshBtn,
+    .qc-btn.settingsPathPickerBtn,
+    .autoRunJobsPager .qc-btn.autoRunJobsPageBtn {
+      box-sizing: border-box !important;
+      width: 24px !important;
+      min-width: 24px !important;
+      max-width: 24px !important;
+      height: 24px !important;
+      min-height: 24px !important;
+      max-height: 24px !important;
+      flex: 0 0 24px !important;
+      align-self: center !important;
+      padding: 0 !important;
+    }
+    /* Bridge result toast: floats above the bottom of the panel, centered horizontally (via
+       .qcToastHost) and sized to its text, and fades out on its own.
+       pointer-events:none so it never blocks clicks on the controls underneath. */
+    /* Explicit left + width (not left/right stretching, which UXP does not reliably apply to
+       fixed elements). This is the default; alignFloatingBoxHost() overrides left/width inline
+       to line the toast up with the panel content. */
+    .qcToastHost {
+      position: fixed;
+      left: var(--qc-float-gap);
+      width: calc(100% - (var(--qc-float-gap) * 2));
+      box-sizing: border-box;
+      /* Measured from the footer's top edge, so the gap stays the same when the footer grows
+         (e.g. to two lines while the update notice is shown). */
+      bottom: calc(var(--qc-footer-h) + var(--qc-float-gap));
+      z-index: 10001;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      pointer-events: none;
+    }
+    /* border-box: a long message's padding and border stay inside the host's width instead of
+       pushing the toast past its right edge. */
+    /* Shared look of the floating message boxes: the toast (.qcToast) and the confirmation
+       (.qcConfirm). They have no box of their own: their text and buttons sit directly on the
+       panel background of the reserved strip above the footer, whose divider line
+       (.qcFloatReserveLine) is the only frame. Defined once so the two always match; each box
+       below only sets its own size, padding and behavior. */
+    .qcToast,
+    .qcConfirm {
+      box-sizing: border-box;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      color: #f0f0f0;
+      font-size: 12px;
+      line-height: 1.3;
+      text-align: center;
+    }
+    /* Spans the strip from side to side (like the confirmation), text centered. No vertical
+       padding: the strip's --qc-float-gap above and below is the spacing. 24px on both sides:
+       room for the X on the right, and the same on the left so the text stays centered. */
+    .qcToast {
+      flex: 1 1 auto;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      padding: 0 24px;
+      opacity: 0;
+      transition: opacity 200ms ease;
+      pointer-events: none;
+      /* Positioning context for the X pinned to the top-right corner. */
+      position: relative;
+    }
+    /* Only a visible toast takes clicks (for its close button); the area around it and a faded-out
+       toast stay click-through, since the host has pointer-events:none. */
+    .qcToast.isVisible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .qcToastText {
+      display: block;
+      text-align: center;
+    }
+    /* X that closes the toast right away. It is a plain element with role="button", not a
+       <button>: UXP draws <button> labels with its own internal layout that clips them in boxes
+       under 24px, while plain text renders reliably at any size. Flex centering keeps the X in
+       the middle of the 16px box. Pinned to the toast's top-right corner (level with the first line of text);
+       the toast's side padding keeps the message clear of it. */
+    .qcToastClose {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 16px;
+      min-width: 16px;
+      height: 16px;
+      min-height: 16px;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px;
+      background: transparent;
+      color: #9f9f9f;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+    }
+    .qcToastClose:hover {
+      background: rgb(58, 58, 58);
+      color: #ffffff;
+    }
+    /* The toast has no border anymore, so its kind is shown on the strip's divider line
+       (showPanelToast sets these classes on .qcFloatReserveLine while the toast is up). */
+    .qcFloatReserveLine.isSuccess {
+      background: rgb(45, 157, 120);
+    }
+    .qcFloatReserveLine.isError {
+      background: rgb(196, 52, 52);
+    }
+    /* Thin divider at the top of the space reserved for a toast/confirmation (see
+       --qc-float-reserve), matching the footer bar's top border, so the edge where the view
+       ends reads clearly. Sits exactly where the views stop; shown only while a box is up
+       (updateFloatingBoxReserve() turns it on via #qcFloatReserveStyle). */
+    .qcFloatReserveLine {
+      position: fixed;
+      left: 0;
+      width: 100%;
+      bottom: calc(var(--qc-footer-h) + var(--qc-float-reserve));
+      height: 1px;
+      background: #2e2e2e;
+      z-index: 9000;
+      display: none;
+      pointer-events: none;
+    }
+    /* Small confirmation box (showPanelConfirm): same spot and look as the toast, but it stays
+       until a button is pressed and it takes clicks. Sits above the toast if both are shown.
+       Button spacing uses margins, not gap (gap is unreliable in this panel). */
+    /* Centered by explicit geometry rather than flex stretching: by default the host is given its
+       width directly (panel width minus a gap on each side) and starts one gap in from the left
+       (UXP does not reliably stretch a fixed element between left and right).
+       alignFloatingBoxHost() overrides left/width inline to line it up with the panel content. */
+    .qcConfirmHost {
+      position: fixed;
+      left: var(--qc-float-gap);
+      width: calc(100% - (var(--qc-float-gap) * 2));
+      /* Same footer-relative placement as the toast. */
+      bottom: calc(var(--qc-footer-h) + var(--qc-float-gap));
+      z-index: 10002;
+      display: none;
+      box-sizing: border-box;
+    }
+    .qcConfirmHost.isVisible {
+      display: block;
+    }
+    /* Fills the host exactly; border-box keeps its padding and border inside that width
+       (otherwise they would push it 22px past the right edge, off-center). */
+    /* No padding: the buttons run exactly between the strip's side gaps (the same gaps as the
+       panel content), and the strip's --qc-float-gap above and below is the vertical spacing. */
+    .qcConfirm {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      padding: 0;
+    }
+    .qcConfirmActions {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: stretch;
+      width: 100%;
+      margin-top: 8px;
+    }
+    /* The two buttons split the box's full width equally (like the panel's other dialog
+       button rows); flex-basis 0 keeps them the same width regardless of label length. */
+    .qcConfirmActions .qc-btn {
+      flex: 1 1 0;
+      width: auto !important;
+      min-width: 0 !important;
+      height: 24px !important;
+      min-height: 24px !important;
+      max-height: 24px !important;
+      margin: 0 !important;
+    }
+    .qcConfirmActions .qc-btn + .qc-btn {
+      margin-left: 8px !important;
+    }
+  </style>
+  <!-- Runtime value of --qc-float-reserve (space kept free for a toast/confirmation). Present
+       from load so updating its text applies at once; a <style> created on the fly was not
+       applied until its second update. Written by updateFloatingBoxReserve(). -->
+  <style id="qcFloatReserveStyle">:root { --qc-float-reserve: 0px; }</style>
+</head>
+<body>
+  <div id="importWorkflowsView"></div>
+  <div id="autoRunJobsView">
+    <div class="settingsViewTitle">Jobs</div>
+    <!-- Actions sit above the job list so Exit/Clear stay reachable without scrolling a long list. -->
+    <div class="settingsActions autoRunJobsTopActions">
+      <button id="autoRunJobsCloseBtn" class="qc-btn" type="button">Exit</button>
+      <button id="autoRunJobsClearBtn" class="qc-btn" type="button">Clear</button>
+    </div>
+    <div class="settingsBody">
+      <div class="settingsSection">
+        <div id="autoRunJobsList" class="autoRunJobsList"></div>
+        <div id="autoRunJobsPager" class="autoRunJobsPager"></div>
+      </div>
+    </div>
+    <div class="pluginVersionRow" aria-label="Plugin version">
+      <span class="pluginVersionLabel">QuickAI v2.0.0 &bull; MOSO Studio &bull; Juan Motaban</span>
+    </div>
+  </div>
+  <div id="autoRunJobLogView">
+    <div class="settingsViewTitle">Job Log</div>
+    <div class="settingsBody">
+      <div class="settingsSection">
+        <div id="autoRunJobLogSubtitle" class="autoRunJobLogSubtitleText"></div>
+        <pre id="autoRunJobLogText" class="autoRunJobLogText"></pre>
+      </div>
+    </div>
+    <div class="settingsActions">
+      <button id="autoRunJobLogCloseBtn" class="qc-btn" type="button">Close</button>
+      <button id="autoRunJobLogSaveBtn" class="qc-btn" type="button">Save</button>
+    </div>
+    <div class="pluginVersionRow" aria-label="Plugin version">
+      <span class="pluginVersionLabel">QuickAI v2.0.0 &bull; MOSO Studio &bull; Juan Motaban</span>
+    </div>
+  </div>
+  <div id="runPodEndpointSettingsView">
+    <div id="runPodEndpointSettingsViewTitle" class="settingsViewTitle">Endpoint Settings</div>
+    <div class="settingsBody">
+      <div class="settingsSection settingsSectionComfy">
+        <div class="settingsSectionTitle">General</div>
+        <div class="settingsFieldsGrid">
+          <div class="settingsField">
+            <label class="fieldLabel" for="runPodIdleTimeoutField">Idle timeout (sec)</label>
+            <input id="runPodIdleTimeoutField" class="dynamicInput" type="text" inputmode="numeric" />
+          </div>
+          <div class="settingsField">
+            <label class="fieldLabel" for="runPodWorkersMaxField">Max workers</label>
+            <input id="runPodWorkersMaxField" class="dynamicInput" type="text" inputmode="numeric" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="settingsActions">
+      <button id="runPodEndpointSettingsCancelBtn" class="qc-btn" type="button">Cancel</button>
+      <button id="runPodEndpointSettingsSaveBtn" class="qc-btn" type="button">Save</button>
+    </div>
+    <div class="pluginVersionRow" aria-label="Plugin version">
+      <span class="pluginVersionLabel">QuickAI v2.0.0 &bull; MOSO Studio &bull; Juan Motaban</span>
+    </div>
+  </div>
+  <div id="runComfyDeploymentSettingsView">
+    <div id="runComfyDeploymentSettingsViewTitle" class="settingsViewTitle">Deployment Settings</div>
+    <div class="settingsBody">
+      <div class="settingsSection settingsSectionComfy">
+        <div class="settingsSectionTitle">General</div>
+        <div class="settingsFieldsGrid">
+          <div class="settingsField">
+            <label class="fieldLabel runComfyMaxInstancesLabel" for="runComfyMaxInstancesField">Max Instances (1~20)</label>
+            <input id="runComfyMaxInstancesField" class="dynamicInput" type="text" inputmode="numeric" />
+          </div>
+          <div class="settingsField">
+            <label class="fieldLabel" for="runComfyQueueSizeField">Queue Size</label>
+            <input id="runComfyQueueSizeField" class="dynamicInput" type="text" inputmode="numeric" />
+          </div>
+          <div class="settingsField">
+            <label class="fieldLabel" for="runComfyKeepWarmField">Keep Warm (sec)</label>
+            <input id="runComfyKeepWarmField" class="dynamicInput" type="text" inputmode="numeric" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="settingsActions">
+      <button id="runComfyDeploymentSettingsCancelBtn" class="qc-btn" type="button">Cancel</button>
+      <button id="runComfyDeploymentSettingsSaveBtn" class="qc-btn" type="button">Save</button>
+    </div>
+    <div class="pluginVersionRow" aria-label="Plugin version">
+      <span class="pluginVersionLabel">QuickAI v2.0.0 &bull; MOSO Studio &bull; Juan Motaban</span>
+    </div>
+  </div>
+  <div id="settingsView">
+    <div class="settingsViewTitle">Settings</div>
+    <div class="settingsBody">
+      <div class="settingsSection settingsSectionComfy">
+        <div class="settingsSectionTitle">Comfy</div>
+        <div class="settingsPathRow">
+          <label class="settingsPathLabel" for="settingsComfyApiKeyField">Comfy API Key</label>
+          <div class="settingsPathInputRow">
+            <div class="settingsTextInputHost"><input id="settingsComfyApiKeyField" class="dynamicInput" type="password" placeholder="comfyui-..." /></div>
+            <button type="button" class="qc-btn settingsPathPickerBtn settingsTokenEyeBtn" aria-label="Show/hide Comfy API Key" data-target="settingsComfyApiKeyField">S</button>
+          </div>
+        </div>
+        <div class="settingsPathRow">
+          <label class="settingsPathLabel" for="settingsRunComfyTokenField">RunComfy API Token</label>
+          <div class="settingsPathInputRow">
+            <div class="settingsTextInputHost"><input id="settingsRunComfyTokenField" class="dynamicInput" type="password" placeholder="Bearer token..." /></div>
+            <button type="button" class="qc-btn settingsPathPickerBtn settingsTokenEyeBtn" aria-label="Show/hide RunComfy API Token" data-target="settingsRunComfyTokenField">S</button>
+          </div>
+        </div>
+        <div class="settingsPathRow">
+          <label class="settingsPathLabel" for="settingsRunPodTokenField">RunPod API Token</label>
+          <div class="settingsPathInputRow">
+            <div class="settingsTextInputHost"><input id="settingsRunPodTokenField" class="dynamicInput" type="password" placeholder="Bearer token..." /></div>
+            <button type="button" class="qc-btn settingsPathPickerBtn settingsTokenEyeBtn" aria-label="Show/hide RunPod API Token" data-target="settingsRunPodTokenField">S</button>
+          </div>
+        </div>
+        <div class="settingsPathRow">
+          <label class="settingsPathLabel" for="settingsCustomApiWorkflowsField">Custom API Workflows 1</label>
+          <div class="settingsPathInputRow">
+            <div class="settingsTextInputHost"><input id="settingsCustomApiWorkflowsField" class="dynamicInput" type="text" placeholder="Select workflows folder..." readonly /></div>
+            <button id="settingsCustomApiWorkflowsClearBtn" class="qc-btn settingsPathPickerBtn settingsPathClearBtn" type="button" aria-label="Clear custom API workflows folder 1">X</button>
+            <button id="settingsCustomApiWorkflowsBrowseBtn" class="qc-btn settingsPathPickerBtn" type="button" aria-label="Select custom API workflows folder 1">…</button>
+          </div>
+        </div>
+        <div class="settingsPathRow">
+          <label class="settingsPathLabel" for="settingsCustomApiWorkflowsField2">Custom API Workflows 2</label>
+          <div class="settingsPathInputRow">
+            <div class="settingsTextInputHost"><input id="settingsCustomApiWorkflowsField2" class="dynamicInput" type="text" placeholder="Select workflows folder..." readonly /></div>
+            <button id="settingsCustomApiWorkflowsClearBtn2" class="qc-btn settingsPathPickerBtn settingsPathClearBtn" type="button" aria-label="Clear custom API workflows folder 2">X</button>
+            <button id="settingsCustomApiWorkflowsBrowseBtn2" class="qc-btn settingsPathPickerBtn" type="button" aria-label="Select custom API workflows folder 2">…</button>
+          </div>
+        </div>
+      </div>
+      <div class="settingsSection settingsSectionCrop">
+        <div class="settingsSectionTitle">Crop</div>
+        <div class="settingsFieldsGrid">
+          <label class="settingsField" for="settingsCropExpandField">
+            <span class="fieldLabel">Expand</span>
+            <input id="settingsCropExpandField" class="dynamicInput" type="text" inputmode="decimal" />
+          </label>
+          <label class="settingsField" for="settingsCropFeatherField">
+            <span class="fieldLabel">Feather</span>
+            <input id="settingsCropFeatherField" class="dynamicInput" type="text" inputmode="decimal" />
+          </label>
+          <label class="settingsField" for="settingsCropMergeThresholdField">
+            <span class="fieldLabel">Merge</span>
+            <input id="settingsCropMergeThresholdField" class="dynamicInput" type="text" inputmode="decimal" />
+          </label>
+          <label class="settingsField" for="settingsCropIgnoreField">
+            <span class="fieldLabel">Ignore</span>
+            <input id="settingsCropIgnoreField" class="dynamicInput" type="text" inputmode="decimal" />
+          </label>
+        </div>
+      </div>
+      <div class="settingsSection settingsSectionUpdate">
+        <div class="settingsSectionTitle">Update</div>
+        <!-- GitHub release check result (text/tone set by renderPluginUpdateStatus) and installed
+             version (set from manifest.json by loadPluginVersionLabel). -->
+        <div id="settingsUpdateStatus" class="settingsUpdateStatus">Checking for updates&hellip;</div>
+        <div id="settingsVersionLabel" class="settingsVersionLabel">Version: v2.0.0</div>
+        <!-- Hides the "Update available" line above the footer credits; applied on Save. -->
+        <label class="fitCanvasRow settingsUpdateNoticeRow" for="settingsShowUpdateNoticeCheckbox">
+          <input id="settingsShowUpdateNoticeCheckbox" type="checkbox" />
+          <span class="fitCanvasRowLabel">Show update message in the footer</span>
+        </label>
+      </div>
+    </div>
+    <div class="settingsActions">
+      <button id="settingsCancelBtn" class="qc-btn" type="button">Cancel</button>
+      <button id="settingsSaveBtn" class="qc-btn" type="button">Save</button>
+    </div>
+    <div class="pluginVersionRow" aria-label="Plugin version">
+      <span class="pluginVersionLabel">QuickAI v2.0.0 &bull; MOSO Studio &bull; Juan Motaban</span>
+    </div>
+  </div>
+  <div class="wrapper">
+    <div class="plugin-title">QuickAI</div>
+    <div id="environmentRow" class="connectionRow">
+      <div class="fieldGroup server">
+        <div class="fieldLabel">Comfy Environment</div>
+        <select id="environmentSelect" class="dynamicInput">
+          <option value="local">Comfy Server</option>
+          <option value="cloud">Comfy Cloud</option>
+          <option value="runcomfy">RunComfy</option>
+          <option value="runpod">RunPod</option>
+        </select>
+      </div>
+    </div>
+    <div id="deploymentRow" class="connectionRow isHidden">
+      <div class="fieldGroup server">
+        <div id="deploymentFieldLabel" class="fieldLabel">Deployment</div>
+        <select id="deploymentSelect" class="dynamicInput"></select>
+        <div id="deploymentStatusMetaLabel" class="isUnknown">Unknown</div>
+        <div id="deploymentStatusLabel">Unknown</div>
+        <button id="deploymentWarmupBtn" class="qc-btn" type="button">Warm Up</button>
+        <button id="deploymentEndpointSettingsBtn" class="qc-btn" type="button">Endpoint Settings</button>
+        <button id="deploymentComfySettingsBtn" class="qc-btn" type="button">Deployment Settings</button>
+      </div>
+    </div>
+    <div id="connectionRow" class="connectionRow">
+      <div class="fieldGroup server">
+        <div class="fieldLabel">Server</div>
+        <sp-textfield id="serverField" size="s" value="127.0.0.1"></sp-textfield>
+        <!-- Connection security hint for the Local server; text/tone set by updateServerSecurityLabel(). -->
+        <div id="serverSecurityLabel" class="serverSecurityLabel"></div>
+      </div>
+      <div class="fieldGroup port">
+        <div class="fieldLabel">Port</div>
+        <sp-textfield id="portField" size="s" value="8188"></sp-textfield>
+      </div>
+    </div>
+    <div id="cloudStatusLabel" class="isUnknown"></div>
+    <div id="cloudQueueLabel" class="serverQueueLabel"></div>
+    <div id="localServerStatusLabel" class="isUnknown">Unknown</div>
+    <div id="localServerQueueLabel" class="serverQueueLabel"></div>
+    <div class="connectionButtonsRow">
+      <div class="fieldGroup connectionButtonColumn">
+        <button id="settingsToggle" class="qc-btn" type="button" aria-pressed="false" aria-label="Settings">Settings</button>
+      </div>
+      <div class="fieldGroup connectionButtonColumn">
+        <button id="openComfyUiBtn" class="qc-btn" type="button" aria-label="Open ComfyUI">Open ComfyUI</button>
+      </div>
+    </div>
+    <div class="connectionSettingsDivider" aria-hidden="true"></div>
+    <label class="fitCanvasRow" for="importJobResultAutomaticallyCheckbox">
+      <input id="importJobResultAutomaticallyCheckbox" type="checkbox" />
+      <span class="fitCanvasRowLabel">Import job result automatically</span>
+    </label>
+    <label class="fitCanvasRow" for="fitCanvasWholeImageCheckbox">
+      <input id="fitCanvasWholeImageCheckbox" type="checkbox" />
+      <span class="fitCanvasRowLabel">Fit canvas for whole-image imports</span>
+    </label>
+    <div id="serverRecentList" class="serverRecentList isHidden" aria-hidden="true"></div>
+    <div id="portRecentList" class="portRecentList isHidden" aria-hidden="true"></div>
+
+    <div class="actionSections">
+      <div id="autoRunCard" class="actionCard">
+        <div class="actionCardTitle">Generate</div>
+        <div id="nanoBananaForm" class="dynamicForm"></div>
+      </div>
+      <div id="bridgeCard" class="actionCard">
+        <div class="actionCardTitle">Bridge</div>
+        <div class="bridgeSubtitle">Send</div>
+        <!-- Send mode dropdown, full width under the Send title. "&&" renders as a literal "&" in
+             this native control (a single "&" is eaten as a mnemonic). -->
+        <select id="bridgeSendModeSelect" class="dynamicInput bridgeSendModeSelect" aria-label="What to send to Comfy">
+          <option value="canvas">Current Canvas</option>
+          <option value="layer">Selected Layer</option>
+          <option value="layerAndBelow">Selected Layer &amp;&amp; Below</option>
+        </select>
+        <button id="bridgeSendBtn" class="qc-btn sendGridFullWidth">Send</button>
+        <div class="bridgeSubtitle bridgeSubtitleGet">Get</div>
+        <!-- Get target dropdown + button, laid out like the Send section above. -->
+        <select id="bridgeGetModeSelect" class="dynamicInput bridgeSendModeSelect" aria-label="Where to put the Comfy output">
+          <option value="newLayer">To New Layer</option>
+          <option value="smartObject">To Selected Smart Object</option>
+        </select>
+        <button id="bridgeGetBtn" class="qc-btn sendGridFullWidth">Get</button>
+      </div>
+    </div>
+
+    <!-- 8px (var(--qc-gap-8)) matches the gap between the Auto Run and Bridge cards. -->
+    <div class="terminalActionRow" style="margin-top: var(--qc-gap-8);">
+      <button id="importWorkflowsBtn" class="qc-btn" type="button" style="width: 100%; min-width: 140px;">Import Workflow</button>
+    </div>
+    <div class="terminalToggleRow">
+      <button id="terminalToggle" class="qc-btn" type="button" aria-pressed="false" style="width: 100%; min-width: 140px;">Terminal</button>
+    </div>
+    <div id="logContainer">
+      <pre id="logWebview"></pre>
+      <div class="terminalActionRow">
+        <button id="clearLogsBtn" class="qc-btn" type="button">Clear</button>
+        <button id="saveLogsBtn" class="qc-btn" type="button">Save</button>
+      </div>
+    </div>
+    <div class="pluginVersionRow" aria-label="Plugin version">
+      <span id="pluginVersionLabel" class="pluginVersionLabel">QuickAI v2.0.0 &bull; MOSO Studio &bull; Juan Motaban</span>
+    </div>
+
+
+  </div>
+  <!-- Transient status toast (bridge send/get results). Filled and shown by showPanelToast(). -->
+  <!-- Full-width fixed host centers the toast horizontally; the toast itself sizes to its text. -->
+  <div class="qcToastHost">
+    <div id="qcToast" class="qcToast" role="status" aria-live="polite">
+      <span id="qcToastText" class="qcToastText"></span>
+      <div id="qcToastCloseBtn" class="qcToastClose" role="button" tabindex="0" aria-label="Close message" title="Close">X</div>
+    </div>
+  </div>
+  <!-- Divider above the reserved toast/confirmation area; shown by updateFloatingBoxReserve(). -->
+  <div class="qcFloatReserveLine"></div>
+  <!-- Small confirmation box (Cancel / Accept). Filled, shown and answered via showPanelConfirm(). -->
+  <div id="qcConfirmHost" class="qcConfirmHost">
+    <div class="qcConfirm" role="alertdialog" aria-labelledby="qcConfirmText">
+      <div id="qcConfirmText" class="qcConfirmText"></div>
+      <div class="qcConfirmActions">
+        <button id="qcConfirmCancelBtn" class="qc-btn" type="button">Cancel</button>
+        <button id="qcConfirmAcceptBtn" class="qc-btn" type="button">Accept</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

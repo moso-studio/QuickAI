@@ -1,0 +1,52 @@
+environment: "cloud", "local", "runcomfy", "runpod"
+input: ("28", required)
+scaled_down_additional_inputs_default: true
+output: "617"
+
+node_id: "610"
+    value:
+        type: bigtextbox
+        data_type: string
+        label: "Prompt"
+        default: "Photo"
+
+node_id: "16"
+    unet_name:
+        type: dropdown
+        data_type: string
+        label: "Diffusion Model"
+        default: "z_image_turbo_bf16.safetensors"
+        options:
+            - "z_image_turbo_bf16.safetensors"
+            - "z_image_turbo_int8_convrot.safetensors"
+
+node_id: "18"
+    clip_name:
+        type: dropdown
+        data_type: string
+        label: "Clip"
+        default: "qwen_3_4b.safetensors"
+        options:
+            - "qwen_3_4b.safetensors"
+            - "qwen_3_4b_int8_convrot.safetensors"
+        
+node_id: "614"
+    value:
+        type: textbox
+        data_type: float
+        label: "Denoise"
+        default: 0.55
+        
+node_id: "613"
+    value:
+        type: textbox
+        data_type: float
+        label: "Upscale"
+        default: 1.0
+
+node_id: "616"
+    value:
+        type: seed
+        data_type: integer
+        label: "Seed"
+        default: 206671048829580

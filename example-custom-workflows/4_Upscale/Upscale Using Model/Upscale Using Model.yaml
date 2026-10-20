@@ -1,0 +1,18 @@
+environment: "local", "cloud", "runcomfy", "runpod"
+input: ("72", "Load Image", required)
+scaled_down_additional_inputs_default: false
+output: "75"
+
+node_id: "74"
+    model_name:
+        type: dropdown
+        data_type: string
+        label: "Model"
+        default: "4x-UltraSharp.pth"
+        options:
+            - "4x-UltraSharp.pth"
+            - "RGT_x2.pth"
+            - "RealESRGAN_x2.pth"
+            - "RealESRGAN_x4.pth"
+            - "RealESRGAN_x4.safetensors"
+            - "RealESRGAN_x4plus.pth"

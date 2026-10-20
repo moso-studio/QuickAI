@@ -1,0 +1,239 @@
+{
+  "83": {
+    "inputs": {
+      "prompt": "",
+      "aspect_ratio": "1:1",
+      "guidance": 3,
+      "steps": 50,
+      "seed": 683965601410944,
+      "prompt_upsampling": false,
+      "input_image": [
+        "662",
+        0
+      ]
+    },
+    "class_type": "FluxKontextProImageNode",
+    "_meta": {
+      "title": "@Flux.1 Kontext [pro] Image"
+    }
+  },
+  "655": {
+    "inputs": {
+      "width": [
+        "657",
+        0
+      ],
+      "height": [
+        "657",
+        1
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "resize",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 2,
+      "device": "cpu",
+      "image": [
+        "83",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "656": {
+    "inputs": {
+      "width": [
+        "658",
+        0
+      ],
+      "height": [
+        "658",
+        1
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "crop",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 2,
+      "device": "cpu",
+      "image": [
+        "655",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "657": {
+    "inputs": {
+      "image": [
+        "661:574",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "658": {
+    "inputs": {
+      "image": [
+        "660",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "659": {
+    "inputs": {
+      "filename_prefix": "Flux.1_Kontext_Max",
+      "images": [
+        "656",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "660": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Main Image"
+    }
+  },
+  "662": {
+    "inputs": {
+      "direction": "right",
+      "match_image_size": true,
+      "spacing_width": 0,
+      "spacing_color": "white",
+      "image1": [
+        "661:574",
+        0
+      ],
+      "image2": [
+        "663",
+        0
+      ]
+    },
+    "class_type": "ImageStitch",
+    "_meta": {
+      "title": "Stitch Images"
+    }
+  },
+  "663": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 2"
+    }
+  },
+  "661:570": {
+    "inputs": {
+      "expression": "a if a >= b else b",
+      "values.a": [
+        "661:582",
+        0
+      ],
+      "values.b": [
+        "661:582",
+        1
+      ]
+    },
+    "class_type": "ComfyMathExpression",
+    "_meta": {
+      "title": "Math Expression"
+    }
+  },
+  "661:574": {
+    "inputs": {
+      "width": [
+        "661:570",
+        1
+      ],
+      "height": [
+        "661:570",
+        1
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "pad",
+      "pad_color": "0",
+      "crop_position": "center",
+      "divisible_by": 2,
+      "device": "cpu",
+      "image": [
+        "661:583",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "661:581": {
+    "inputs": {
+      "width": [
+        "661:582",
+        0
+      ],
+      "height": [
+        "661:582",
+        1
+      ],
+      "batch_size": 1,
+      "color": 0
+    },
+    "class_type": "EmptyImage",
+    "_meta": {
+      "title": "Empty Image"
+    }
+  },
+  "661:582": {
+    "inputs": {
+      "image": [
+        "660",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "661:583": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": false,
+      "destination": [
+        "661:581",
+        0
+      ],
+      "source": [
+        "660",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "Image Composite Masked"
+    }
+  }
+}

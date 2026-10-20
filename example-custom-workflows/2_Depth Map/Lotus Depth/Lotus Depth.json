@@ -1,0 +1,264 @@
+{
+  "9": {
+    "inputs": {
+      "filename_prefix": "Lotus_Depth",
+      "images": [
+        "94",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "output"
+    }
+  },
+  "12": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "input"
+    }
+  },
+  "75": {
+    "inputs": {
+      "samples": [
+        "78",
+        0
+      ],
+      "vae": [
+        "77",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "76": {
+    "inputs": {
+      "unet_name": "lotus-depth-d-v1-1.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Diffusion Model"
+    }
+  },
+  "77": {
+    "inputs": {
+      "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "78": {
+    "inputs": {
+      "noise": [
+        "79",
+        0
+      ],
+      "guider": [
+        "80",
+        0
+      ],
+      "sampler": [
+        "82",
+        0
+      ],
+      "sigmas": [
+        "85",
+        0
+      ],
+      "latent_image": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "SamplerCustomAdvanced"
+    }
+  },
+  "79": {
+    "inputs": {},
+    "class_type": "DisableNoise",
+    "_meta": {
+      "title": "DisableNoise"
+    }
+  },
+  "80": {
+    "inputs": {
+      "model": [
+        "76",
+        0
+      ],
+      "conditioning": [
+        "86",
+        0
+      ]
+    },
+    "class_type": "BasicGuider",
+    "_meta": {
+      "title": "BasicGuider"
+    }
+  },
+  "81": {
+    "inputs": {
+      "scheduler": "normal",
+      "steps": 1,
+      "denoise": 1,
+      "model": [
+        "76",
+        0
+      ]
+    },
+    "class_type": "BasicScheduler",
+    "_meta": {
+      "title": "BasicScheduler"
+    }
+  },
+  "82": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "KSamplerSelect"
+    }
+  },
+  "83": {
+    "inputs": {
+      "image": [
+        "75",
+        0
+      ]
+    },
+    "class_type": "ImageInvert",
+    "_meta": {
+      "title": "Invert Image"
+    }
+  },
+  "84": {
+    "inputs": {
+      "pixels": [
+        "90",
+        0
+      ],
+      "vae": [
+        "77",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "85": {
+    "inputs": {
+      "sigma": [
+        "87",
+        0
+      ],
+      "sigmas": [
+        "81",
+        0
+      ]
+    },
+    "class_type": "SetFirstSigma",
+    "_meta": {
+      "title": "SetFirstSigma"
+    }
+  },
+  "86": {
+    "inputs": {},
+    "class_type": "LotusConditioning",
+    "_meta": {
+      "title": "LotusConditioning"
+    }
+  },
+  "87": {
+    "inputs": {
+      "value": 999
+    },
+    "class_type": "Float",
+    "_meta": {
+      "title": "Sigma | Float"
+    }
+  },
+  "90": {
+    "inputs": {
+      "longer_edge": [
+        "96",
+        0
+      ],
+      "images": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "ResizeImagesByLongerEdge",
+    "_meta": {
+      "title": "Resize Images by Longer Edge"
+    }
+  },
+  "92": {
+    "inputs": {
+      "image": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "93": {
+    "inputs": {
+      "expression": "a if a >= b else b",
+      "values.a": [
+        "92",
+        0
+      ],
+      "values.b": [
+        "92",
+        1
+      ]
+    },
+    "class_type": "ComfyMathExpression",
+    "_meta": {
+      "title": "Math Expression"
+    }
+  },
+  "94": {
+    "inputs": {
+      "longer_edge": [
+        "93",
+        1
+      ],
+      "images": [
+        "83",
+        0
+      ]
+    },
+    "class_type": "ResizeImagesByLongerEdge",
+    "_meta": {
+      "title": "Resize Images by Longer Edge"
+    }
+  },
+  "96": {
+    "inputs": {
+      "value": 1500
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Resolution | Int"
+    }
+  }
+}

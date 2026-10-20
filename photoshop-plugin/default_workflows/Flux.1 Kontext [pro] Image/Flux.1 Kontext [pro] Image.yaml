@@ -1,0 +1,31 @@
+environment: "local", "cloud", "runcomfy", "runpod"
+input: ("660", "Main Image", required), ("663", "Image 2")
+scaled_down_additional_inputs_default: true
+output: "659"
+
+node_id: "83"
+    prompt:
+        type: bigtextbox
+        data_type: string
+        label: "Prompt"
+        default: ""
+    guidance:
+        type: textbox
+        data_type: float
+        label: "Guidance"
+        default: "3"
+    steps:
+        type: textbox
+        data_type: integer
+        label: "Steps"
+        default: "50"
+    seed:
+        type: seed
+        data_type: integer
+        label: "Seed"
+        default: "683965601410944"
+    prompt_upsampling:
+        type: checkbox
+        data_type: boolean
+        label: "Prompt Upsampling"
+        default: false

@@ -1,0 +1,18 @@
+environment: "local", "cloud"
+input: ("12", required)
+scaled_down_additional_inputs_default: true
+output: "98"
+
+node_id: "96"
+    value:
+        type: textbox
+        data_type: integer
+        label: "Resolution"
+        default: "1500"
+
+node_id: "87"
+    value:
+        type: textbox
+        data_type: float
+        label: "Sigma"
+        default: "999"

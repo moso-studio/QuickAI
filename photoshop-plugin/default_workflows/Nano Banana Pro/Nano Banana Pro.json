@@ -1,0 +1,224 @@
+{
+  "341": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 0"
+    }
+  },
+  "343": {
+    "inputs": {
+      "prompt": "",
+      "model": "gemini-3-pro-image-preview",
+      "seed": 42,
+      "aspect_ratio": "auto",
+      "resolution": "1K",
+      "response_modalities": "IMAGE+TEXT",
+      "system_prompt": "You are an expert image-generation engine. You must ALWAYS produce an image.\nInterpret all user inputâ€”regardless of format, intent, or abstractionâ€”as literal visual directives for image composition.\nIf a prompt is conversational or lacks specific visual details, you must creatively invent a concrete visual scenario that depicts the concept.\nPrioritize generating the visual representation above any text, formatting, or conversational requests.",
+      "images": [
+        "359",
+        0
+      ]
+    },
+    "class_type": "GeminiImage2Node",
+    "_meta": {
+      "title": "@Nano Banana Pro (Google Gemini Image)"
+    }
+  },
+  "358": {
+    "inputs": {
+      "filename_prefix": "Nano_Banana_Pro",
+      "images": [
+        "343",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "359": {
+    "inputs": {
+      "image1": [
+        "341",
+        0
+      ],
+      "image2": [
+        "363",
+        0
+      ],
+      "image3": [
+        "364",
+        0
+      ],
+      "image4": [
+        "365",
+        0
+      ],
+      "image5": [
+        "366",
+        0
+      ],
+      "image6": [
+        "367",
+        0
+      ],
+      "image7": [
+        "368",
+        0
+      ],
+      "image8": [
+        "369",
+        0
+      ],
+      "image9": [
+        "370",
+        0
+      ],
+      "image10": [
+        "371",
+        0
+      ],
+      "image11": [
+        "372",
+        0
+      ],
+      "image12": [
+        "373",
+        0
+      ],
+      "image13": [
+        "374",
+        0
+      ],
+      "image14": [
+        "375",
+        0
+      ]
+    },
+    "class_type": "ImpactMakeImageBatch",
+    "_meta": {
+      "title": "Make Image Batch"
+    }
+  },
+  "363": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 1"
+    }
+  },
+  "364": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 2"
+    }
+  },
+  "365": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 3"
+    }
+  },
+  "366": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 4"
+    }
+  },
+  "367": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 5"
+    }
+  },
+  "368": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 6"
+    }
+  },
+  "369": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 7"
+    }
+  },
+  "370": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 8"
+    }
+  },
+  "371": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 9"
+    }
+  },
+  "372": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 10"
+    }
+  },
+  "373": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 11"
+    }
+  },
+  "374": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 12"
+    }
+  },
+  "375": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 13"
+    }
+  }
+}

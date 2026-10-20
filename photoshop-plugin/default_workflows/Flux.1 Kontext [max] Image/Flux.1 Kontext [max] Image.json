@@ -1,0 +1,239 @@
+{
+  "84": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Main Image"
+    }
+  },
+  "95": {
+    "inputs": {
+      "prompt": "",
+      "aspect_ratio": "1:1",
+      "guidance": 3,
+      "steps": 50,
+      "seed": 382350531823027,
+      "prompt_upsampling": false,
+      "input_image": [
+        "649",
+        0
+      ]
+    },
+    "class_type": "FluxKontextMaxImageNode",
+    "_meta": {
+      "title": "@Flux.1 Kontext [max] Image"
+    }
+  },
+  "638": {
+    "inputs": {
+      "width": [
+        "642",
+        0
+      ],
+      "height": [
+        "642",
+        1
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "resize",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 2,
+      "device": "cpu",
+      "image": [
+        "95",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "639": {
+    "inputs": {
+      "width": [
+        "643",
+        0
+      ],
+      "height": [
+        "643",
+        1
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "crop",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 2,
+      "device": "cpu",
+      "image": [
+        "638",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "642": {
+    "inputs": {
+      "image": [
+        "641:574",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "643": {
+    "inputs": {
+      "image": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "649": {
+    "inputs": {
+      "direction": "right",
+      "match_image_size": true,
+      "spacing_width": 0,
+      "spacing_color": "white",
+      "image1": [
+        "641:574",
+        0
+      ],
+      "image2": [
+        "655",
+        0
+      ]
+    },
+    "class_type": "ImageStitch",
+    "_meta": {
+      "title": "Stitch Images"
+    }
+  },
+  "653": {
+    "inputs": {
+      "filename_prefix": "Flux.1_Kontext_Max",
+      "images": [
+        "639",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "655": {
+    "inputs": {
+      "image": ""
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Image 2"
+    }
+  },
+  "641:570": {
+    "inputs": {
+      "expression": "a if a >= b else b",
+      "values.a": [
+        "641:582",
+        0
+      ],
+      "values.b": [
+        "641:582",
+        1
+      ]
+    },
+    "class_type": "ComfyMathExpression",
+    "_meta": {
+      "title": "Math Expression"
+    }
+  },
+  "641:574": {
+    "inputs": {
+      "width": [
+        "641:570",
+        1
+      ],
+      "height": [
+        "641:570",
+        1
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "pad",
+      "pad_color": "0",
+      "crop_position": "center",
+      "divisible_by": 2,
+      "device": "cpu",
+      "image": [
+        "641:583",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "641:581": {
+    "inputs": {
+      "width": [
+        "641:582",
+        0
+      ],
+      "height": [
+        "641:582",
+        1
+      ],
+      "batch_size": 1,
+      "color": 0
+    },
+    "class_type": "EmptyImage",
+    "_meta": {
+      "title": "Empty Image"
+    }
+  },
+  "641:582": {
+    "inputs": {
+      "image": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "641:583": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": false,
+      "destination": [
+        "641:581",
+        0
+      ],
+      "source": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "Image Composite Masked"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+environment: "local", "cloud", "runcomfy", "runpod"
+input: ("341", "Main Image"), ("363", "Image 1"), ("364", "Image 2"), ("365", "Image 3"), ("366", "Image 4"), ("367", "Image 5"), ("368", "Image 6"), ("369", "Image 7"), ("370", "Image 8"), ("371", "Image 9"), ("372", "Image 10"), ("373", "Image 11"), ("374", "Image 12"), ("375", "Image 13")
+scaled_down_additional_inputs_default: true
+output: "358"
+
+node_id: "343"
+    prompt:
+        type: bigtextbox
+        data_type: string
+        label: "Prompt"
+        default: ""
+    model:
+        type: dropdown
+        data_type: string
+        label: "Model"
+        default: "gemini-3-pro-image-preview"
+        options:
+            - "gemini-3-pro-image-preview"
+            - "Nano Banana 2 (Gemini 3.1 Flash Image)"
+    seed:
+        type: seed
+        data_type: integer
+        label: "Seed"
+        default: "42"
+    aspect_ratio:
+        type: dropdown
+        data_type: string
+        label: "Aspect Ratio"
+        default: "auto"
+        options:
+            - "auto"
+            - "1:1"
+            - "2:3"
+            - "3:2"
+            - "3:4"
+            - "4:3"
+            - "4:5"
+            - "5:4"
+            - "9:16"
+            - "16:9"
+            - "21:9"
+    resolution:
+        type: dropdown
+        data_type: string
+        label: "Resolution"
+        default: "1K"
+        options:
+            - "1K"
+            - "2K"
+            - "4K"
