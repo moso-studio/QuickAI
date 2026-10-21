@@ -11,6 +11,11 @@ QuickAI is a Photoshop plugin that runs ComfyUI workflows without leaving Photos
 </div>
 
 ## **Installation**
+<div align="center">
+  
+[![Watch the video](https://github.com/user-attachments/assets/a3888512-5a8e-4c86-aa2a-a8f8f2c73ad0)](https://vimeo.com/1238059414/e74ba05d69)
+
+</div>
 
 [Download Latest Release](https://github.com/moso-studio/QuickAI/releases/latest)
 
